@@ -1,3 +1,6 @@
 site_name: Test-Driven Development with Flask
 docs_dir: 'text'
 site_dir: 'docs'
+nav: 
+  - Home: index.md
+  - One: ch1.md
