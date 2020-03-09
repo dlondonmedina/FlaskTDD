@@ -4,3 +4,4 @@ site_dir: 'docs'
 nav: 
   - Home: index.md
   - One: ch1.md
+  - Two: ch2.md
