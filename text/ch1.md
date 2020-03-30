@@ -1,153 +1,261 @@
-# Getting Flask Set Up and Your First Functional Test
-The first functional test checks three things:
+# Introduction to TDD
+There are many different approaches to developing software. One of the major ones that is used, especially in enterprise scale projects, is Test-Driven Development (TDD). TDD means that before we write any code we write a test that will determine if our code is functioning the way we want it to. For instance, let's say I want to build a function that returns a list of prime factors of an integer passed into the function. Let's also say, I want that function to return None if the value passed to the function is not an integer. If we are not using a TDD approach we might start by writing our function directly. However, we'll spend a lot of time debugging and running into issues if we do so. Instead, let's think about the things that we need to test:
+* The easiest case is when the input is incorrect. We can set up a test that will call the function with a value that is not an integer and test that we receive None as the return.
+* We need to test that the function returns a list when it is passed an integer.
+* We need to test that the list contains the prime factors of the input integer. 
 
-* Is the selenium library installed and can we import webdriver
-* Is there a server serving listening and responding at localhost on port 5000 **This is different from the Django.**
-* Is that server responding with the page_source attribute set to "Flask"
-
-Here is the code:
-
+A simple and dirty way to test this is to write a driver that tests all of the functionality above. It might look something like this:
 ``` python
-from selenium import webdriver
+if __name__ == "__main__":
 
-browser = webdriver.Firefox()
-browser.get('http://localhost:5000')
-
-assert 'Flask' in browser.page_source
+   out1 = prime_factors("apple")
+   if out1 is None:
+      print("Out is None. Pass")
+   else:
+      print("Does not return None. Fail")
+   out2 = prime_factors(315)
+   if isinstance(out2, list):
+      print("Returns a list. Pass")
+      if out2 == [3, 5, 7]:
+         print("Out is 3, 5, 7. Pass")
+      else:
+         print("Does not return the right list. Fail")
+   else:
+      print("Does not return a list. Fail) 
 ```
-*functional_tests.py*
+From there, I'd write out my function and make sure it's called prime_factors(). If you'd like, you can try using this method, and see if you can get it working. For a small, toy task like this, you might be able to sufficiently test your program with a driver, but you end up with a messy driver at the bottom of your program that you'll want to delete later on, and it's an awful lot of lines. 
 
-As I follow along with this, I get this error:
- ```
-$ python functional_tests.py
+## Doctest
+Fortunately, Python includes a number of test tools that can help us do TDD more easily and make our tests more effective. The first of which is [doctest](https://docs.python.org/3/library/doctest.html), and it comes built-in with Python. Doctest allows you to write your tests into the docstring of your function. If you recall, a docstring is the bit of documentation this is included in triple double quotes when you define a function. The same tests as above would look like this:
+```python
+def prime_factors(n):
+   """Return list of prime factors of n or None if not integer
+   
+   >>> prime_factors("apple")
+   None
+   
+   It must return a list type object
+   >>> out = prime_factors(315)
+   >>> isinstance(out, list)
+   True
+
+   It must return the right list
+   >>> prime_factors(315)
+   [3, 5, 7]
+   """
+``` 
+Please do take a moment to explore the doctest library. We have two options to run the test. First we can include this driver at the bottom of our module.
+```python
+if __name__ == "__main__":
+   import doctest
+   doctest.testmod()
+```
+and then run the program from our terminal:```(env) $ python prime_factors.py``` or we can leave the driver off and call the doctest module from the terminal (this won't work if there are many imports): ```(env) $ python -m doctest -v prime_factors.py```
+
+I generally prefer to use the second route so that I don't have extra cruft in my program. That being said, I generally use unittest instead of doctest, so I don't spend a lot of time with this library. It is a good one, though. This time, go ahead and try this out. 
+
+## Unittest
+Another tool we use in TDD is testing suites. [unittest](https://docs.python.org/3/library/unittest.html?highlight=unittest#module-unittest) is one such testing suite, and it includes various tools that help us write automated tests for our projects. Other options for automated testing that are very popular are pytest and nose. We will be using unittest in this class, but I do encourage you to explore some of the other options. I'll write up the same set of tests using unittest now. Please note that I will have two different files, one for my code, and one for my tests:
+
+_prime_factors_tests.py_
+```python
+import unittest
+import prime_factors as target #1
+
+class TestPrimeFactors(unittest.TestCase): #2
+   
+   def test_bad_input(self): #3
+      self.assertIsNone(target.prime_factors("apple"))
+
+   def test_returns_list(self):
+      l = target.prime_factors(315)
+      self.assertIsInstance(l, list)
+   
+   def test_returns_correct_list(self):
+      l = target.prime_factors(315)
+      self.assertEqual([3, 5, 7], l)
+```
+
+Here are a few things to pay attention to: 
+1. We're importing our code to be tested, so we need to make sure it is in a file called prime_factors and is in the same directory as our test suite. 
+2. We create a new object to run the collection of tests. The rule is that our test class name must begin with the word Test and it must extend the unittest.TestCase class. We'll talk about inheritance next week with Objects.
+3. Each test function should test one discrete case that could occur when the code runs (if we're doing unittests). See the bulleted list above. Also, notice that all of the test functions begin with the word "test" followed by some description of what the test is looking for in snake case. 
+
+If you're following along, you should have two files in your directory. One with the tests and one that is empty for our code. If so, let's try to run our tests:
+
+```
+$ python -m unittest prime_factors_tests.py 
+EEE
+======================================================================
+ERROR: test_bad_input (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "functional_tests.py", line 1, in <module>
-    from selenium import webdriver
-ModuleNotFoundError: No module named 'selenium'
- ```
+  File "prime_factors_tests.py", line 8, in test_bad_input
+    self.assertIsNone(target.prime_factors("apple"))
+AttributeError: module 'prime_factors' has no attribute 'prime_factors'
 
-Notice that the test failed, but not in the way we expected. Should I have written a separate test that selenium was installed? I could have, but since Python throws an import error anyway, it's not that big of a problem to not have a separate test for it. If you're getting this error as well, then the following should fix things up:
+======================================================================
+ERROR: test_returns_correct_list (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 15, in test_returns_correct_list
+    l = target.prime_factors(315)
+AttributeError: module 'prime_factors' has no attribute 'prime_factors'
 
-``` bash 
-(env) $ pip install selenium 
+======================================================================
+ERROR: test_returns_list (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 11, in test_returns_list
+    l = target.prime_factors(315)
+AttributeError: module 'prime_factors' has no attribute 'prime_factors'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+FAILED (errors=3)
 ```
-After Selenium is installed, then you should get the expected error message. We should expect a connection error because we haven't set up Flask yet, so there's no server listening. 
+You'll notice that the tests failed, but they failed because of errors. This is because our file for the code is empty. We can remedy this by beginning to code:
 
-# Getting Flask Up and Running
-I know I haven't installed Flask in this virtual environment, yet, so I know I'll need to do that first. Django has a CLI to help you build your core site, but since Flask is a lightweight Framework with few moving parts, we don't get that. At the same time, we have far fewer files to deal with and far fewer moving parts, so it's a toss up. Flask is a great tool for smaller projects. 
-
-## Step One: Install Flask
-Installing Flask is pretty easy. Using pip package manager we just need to install Flask. **Make sure that your virtual environment is activated**
-
- ```
- (env) $ pip install Flask
- ```
-
-At this point, it would also be valuable to create a requirements.txt file. This file allows you to easily set up your app on a different machine without having to move all of the dependencies. You will be using the "freeze" command that is build into pip. This command echos the list of dependencies that have been installed in this virtual environment using pip install. Try it out in the terminal and you'll see something like this:
-``` bash
-(env) $ pip freeze
-Click==7.0
-Flask==1.1.1
-itsdangerous==1.1.0
-Jinja2==2.11.1
-MarkupSafe==1.1.1
-selenium==3.141.0
-urllib3==1.25.8
-Werkzeug==1.0.0
+_prime_factors.py_
+```python
+def prime_factors(n):
+   pass
 ```
-When I installed Flask, I also installed its dependencies (Click, itsdangerous, Jinja2, urllib3, werkzeug). You don't need to do this every time, this was just to show you how pip freeze works. 
-
-Now you'll need to somehow write the output of ```pip freeze``` into a text file called *requirements.txt* You could copy and past from the terminal, but that's too much work. Instead, you can use the > or >> symbol to write the output of a command directly to a file like so:
-``` bash
-(env) $ pip freeze > requirements.txt
+Notice that I'm working very incrementally and slowly. So I am expecting now all my tests will fail instead of throw errors. Here we go:
 ```
-If I use the > symbol, it will either create or overwrite the file to the right of the symbol. **NOTICE: if you overwrite data will be lost** This is the correct choice in this case because each time we update our requirements.txt file, we want to overwrite it. If we were appending to a file for some other reason, then we would use >> which either creates or appends to the file to the right of the symbol.
+$ python -m unittest prime_factors_tests.py 
+.FF
+======================================================================
+FAIL: test_returns_correct_list (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 15, in test_returns_correct_list
+    self.assertEqual([3, 5, 7], l)
+AssertionError: [3, 5, 7] != None
 
-## Step Two: Set Up Your Directory
-Understanding where your files live is crucial in programming. If the files are not in the right place or if your directory is misshapen, you'll have lots of problems. Django's CLI tool does much of this for you. In Flask, we're on our own. Right now your folder structure within your flask directory should look like this:
+======================================================================
+FAIL: test_returns_list (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 11, in test_returns_list
+    self.assertIsInstance(l, list)
+AssertionError: None is not an instance of <class 'list'>
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+FAILED (failures=2)
+
 ```
-|--functional_tests.py
-|--geckodriver.log
-|--requirements.txt
-|--env (Virtual Environment Directory)
-|   |--[...]
+We have to failures. You'll notice the first test is not failing. This is because our function currently is not returning anything, and no return is the same as None. So the test passes. I'm going to alter the code slightly just to get to the point where everything is failing.
+_prime_factors.py_
+```python
+def prime_factors(n):
+   return -1
 ```
-We need to create a directory and three files. We need to create a directory called "app" and a file called superlists.py that are both siblings of functional_tests.py. This means they are direct children of our flask directory. We also need to create two files called __init\__.py and routes.py that is a child of the "app" directory. Here are the commands in the terminal.
-``` bash
-(env) $ mkdir app && touch superlists.py app/__init__.py app/routes.py
+So we try one more time and we get three failures as expected:
 ```
-You can also enter them as three separate commands if you wish. If this was successful, your flask directory should look like this:
+$ python -m unittest prime_factors_tests.py 
+FFF
+======================================================================
+FAIL: test_bad_input (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 7, in test_bad_input
+    self.assertIsNone(target.prime_factors("apple"))
+AssertionError: -1 is not None
+
+======================================================================
+FAIL: test_returns_correct_list (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 15, in test_returns_correct_list
+    self.assertEqual([3, 5, 7], l)
+AssertionError: [3, 5, 7] != -1
+
+======================================================================
+FAIL: test_returns_list (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 11, in test_returns_list
+    self.assertIsInstance(l, list)
+AssertionError: -1 is not an instance of <class 'list'>
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+FAILED (failures=3)
 ```
-|--functional_tests.py
-|--geckodriver.log
-|--requirements.txt
-|--superlists.py
-|--app
-|   |--__init__.py
-|   |--routes.py
-|--env (Virtual Environment Directory)
-|   |--[...]
+Failed tests are a good thing. First, we know that once all of my tests pass, if I did a good job designing them, then the code will be working properly and will be less likely to have bugs. Second, I can see that these are all failing exactly as I am expecting to, so the tests are working. I just need to write my code so it satisfies the tests. My first test is checking to make sure that the function returns none if the input is not an integer. So let's get that one ot pass:
+
+_prime_factors.py_
+```python
+def prime_factors(n):
+   if isinstance(n, int):
+      return -1
+   return None
 ```
-**If your directory doesn't look exactly like this then go back and check for mistakes before you move on.** Now that those files are all created, you can start coding so that the tests will pass. You will be editing superlists.py, __init\__.py and routes.py. The first is the script that launches the Flask application. 
-
-``` python
-from app import app
+This change means that the only case in which the function will not return None is if n is an integer. Let's run our tests and see:
 ```
-*superlists.py*
+$ python -m unittest prime_factors_tests.py 
+.FF
+======================================================================
+FAIL: test_returns_correct_list (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 15, in test_returns_correct_list
+    self.assertEqual([3, 5, 7], l)
+AssertionError: [3, 5, 7] != -1
 
-The second is the core of the app (for now). 
-``` python
-from flask import Flask
+======================================================================
+FAIL: test_returns_list (prime_factors_tests.TestPrimeFactors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "prime_factors_tests.py", line 11, in test_returns_list
+    self.assertIsInstance(l, list)
+AssertionError: -1 is not an instance of <class 'list'>
 
-app = Flask(__name__)
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
 
-from app import routes
+FAILED (failures=2)
 ```
-*__init\__.py*
+You'll notice that our tests still fail, but the first test passed. That's great and means progress! Now we just need to get our other tests to pass. We could have the function return an empty list to get the second test to pass, but I'm just going to finish off the code and get both tests passing at the same time. There might be some debate as to whether we should test both that the function returns a list and returns the correct list. We could say if we're testing for the correct list, we don't need to also test that the function returns a list.
 
-The third is a file that manages the routes. 
+_prime_factors.py_
+```python
+import math
 
-``` python
-from app import app
+def prime_factors(n):
+   if isinstance(n, int):
+      out = []
+      if n % 2 == 0:
+         out.append(2)
+         while n % 2 == 0:
+            n = n / 2
+      
+      for i in range(3, int(math.sqrt(n)) + 1, 2):
+         if n % i == 0:
+            out.append(i)
+            while n % i == 0:
+               n = n / i
+      
+      if n > 2:
+         out.append(n)
+      return out
 
-@app.route('/')
-@app.route('/index')
-def index():
-   return "Hello, Flask!"
+   return None
 ```
 
-We'll be discussing all of these later on in great detail. Once you've created all of these files, you'll need to start your Flask app so that you can run your tests again. This will require you to have 2 terminals open. In the first terminal, start the Flask app:
-``` bash
-(env) $ flask run
+Success! We're done! 
 ```
-and in the second terminal (make sure you've navigated to your project directory and activated your virtual environment):
-``` bash
-(env) $ python functional_tests.py
+$ python -m unittest prime_factors_tests.py 
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK
 ```
-At this point, the functional tests will open a new browser and call the Flask app. As soon as that loads, you can close the browser. In your terminal, you should get no error messages. If that's the case, you've successfully completed this. If not, you'll need to go through and revise your code until it works. Make sure to read any error messages for a clue as to what to fix. 
 
-Now, you'll want to initialize your flask project directory as a git repository. Create a gitignore file that contains at least the following:
-```
-# Byte-compiled / optimized / DLL files
-__pycache__/
-
-
-# Unit test / coverage reports
-.pytest_cache/
-
-
-# Flask stuff:
-db.sqlite3
-db.sqlite3-journal
-instance/
-.webassets-cache
-
-# Environments
-env/
-
-# Visual Studio Code
-.vscode/
-```
-*.gitignore*
-
-Then create a new github repository and push your local repository to github. You're done with getting started!
+In the next chapter we'll be discussing different types of tests (End to End, Functional, and Unit Tests).
