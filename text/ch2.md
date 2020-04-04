@@ -37,7 +37,7 @@ _wordcloud_tests.py_
 import unittest
 import wordcloud as t
 
-class TestPrimeFactors(unittest.TestCase):
+class TestWordCloud(unittest.TestCase):
    def setUp(self):
       self.text = "Peter peter of Pickeled Pepper pepper Pepper"
       self.sensitive = {
@@ -126,7 +126,7 @@ _wordcloud_tests.py_
 import unittest
 import wordcloud as t
 
-class TestPrimeFactors(unittest.TestCase):
+class TestWordCloud(unittest.TestCase):
    def setUp(self):
       self.text = "Peter peter of Pickeled \
          Pepper pepper Pepper 123 p3pper"
@@ -222,3 +222,28 @@ def word_count(text, case=False):
    
    return -1
 ```
+
+### Functional Testing
+If unit tests test to see if the code is working correctly, functional tests test to see if a particular functionality of a program is working correctly. This means we are not so concerned with the inner workings of our functions, but instead we are concerned with the functions that an application provides a user. We will cover functional tests as we start building our Flask app, but imagine for now our word cloud application. The user enters a text file and the application creates an image object based on the text. For a functional test, I'd create a mockup of an expected image object based on a particular text, and then pass that text to the function and compare the output with the expected like so:
+
+_functional_tests.py_
+```python
+import unittest
+import wordcloud as t
+
+
+class TestWordCloudFunctional(unittest.TestCase):
+
+   def setUp(self):
+      self.text = "My text ..."
+      self.cloud = ''
+      with open('img.png', 'rb') as f:
+         self.cloud = f.read()
+      
+   
+   def test_can_create_word_cloud(self):
+      self.assertEqual(t.make_cloud(self.text), self.cloud)
+```
+
+I'm imagining that we'll have to create a function called make_cloud, which probably will call the word_cound and so on. 
+
