@@ -283,21 +283,23 @@ class TestPrimeFactors(unittest.TestCase):
 </code></pre>
 
 <p>All of my tests are passing now, so basically I know that my code is working as expected. I haven't done anything to ensure that the user uses the code correctly, but at this point that's okay. There's just one more small change I would like to make and add some documentation. I want to make case a kwarg instead of an arg. I want to do this so I can set a default setting. I want the function to not be case sensitive unless it is asked to be sensitive. Kwargs are cool because you can set a default value for an argument, and that makes it so that we don't need to pass True or False to the function in some of the cases. Only when we want to be case sensitive. I made a small refactor as below with documentation added. </p>
-<p><em>wordcloud.py</em> 
-```python
-def word_count(text, case=False):
-   """
+<p><em>wordcloud.py</em> </p>
+<pre><code class="python">def word_count(text, case=False):
+   &quot;&quot;&quot;
    This function calculates word frequency in a text.
-   This function should not count digit strings.</p>
-<p>Args:
-      text (str): the text to be searched.</p>
-<p>Kwargs:
-      case (bool): Should the search be case sensive</p>
-<p>Returns:
-      dict. counts keyed by word, or return code::</p>
-<pre><code>     -1 -- Error
-</code></pre>
-<p>"""
+   This function should not count digit strings.
+
+   Args:
+      text (str): the text to be searched.
+
+   Kwargs:
+      case (bool): Should the search be case sensive
+
+   Returns:
+      dict. counts keyed by word, or return code::
+
+         -1 -- Error
+   &quot;&quot;&quot;
    if isinstance(text, str) and isinstance(case, bool):
       counts = {}
       for word in text.split():
@@ -308,8 +310,10 @@ def word_count(text, case=False):
                counts[word] += 1
             else:
                counts[word] = 1
-      return counts</p>
-<p>return -1</p></div>
+      return counts
+
+   return -1
+</code></pre></div>
             </div>
         </div>
 

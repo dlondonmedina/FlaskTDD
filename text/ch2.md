@@ -221,3 +221,4 @@ def word_count(text, case=False):
       return counts
    
    return -1
+```
