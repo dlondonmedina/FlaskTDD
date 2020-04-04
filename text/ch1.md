@@ -1,7 +1,10 @@
 # Introduction to TDD
 There are many different approaches to developing software. One of the major ones that is used, especially in enterprise scale projects, is Test-Driven Development (TDD). TDD means that before we write any code we write a test that will determine if our code is functioning the way we want it to. For instance, let's say I want to build a function that returns a list of prime factors of an integer passed into the function. Let's also say, I want that function to return None if the value passed to the function is not an integer. If we are not using a TDD approach we might start by writing our function directly. However, we'll spend a lot of time debugging and running into issues if we do so. Instead, let's think about the things that we need to test:
+
 * The easiest case is when the input is incorrect. We can set up a test that will call the function with a value that is not an integer and test that we receive None as the return.
+
 * We need to test that the function returns a list when it is passed an integer.
+
 * We need to test that the list contains the prime factors of the input integer. 
 
 A simple and dirty way to test this is to write a driver that tests all of the functionality above. It might look something like this:
