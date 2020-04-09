@@ -247,3 +247,8 @@ class TestWordCloudFunctional(unittest.TestCase):
 
 I'm imagining that we'll have to create a function called make_cloud, which probably will call the word_cound and so on. 
 
+### End to End (E2E) Testing
+
+These tests make use of the user interface that you've developed and are like functional tests, but instead of testing one function of your code, they would test a sequence of functions that a user might use. For instance, if I was making a calculator, my E2E test might begin by launching the calculator, perform a series of calculations and then close the calculator. Alternatively, if I was creating a sign-up function for a website, an E2E test would test that through the user interface a new user can be created, saved to whatever storage solution we have for that data, test the user can login, and then log back out again. 
+
+We won't be developing any E2E tests in this class because we'll be focusing on a very small application that can be tested with functional and unit tests.

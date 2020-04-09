@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Four - Test-Driven Development with Flask</title>
+        <title>Seven - Test-Driven Development with Flask</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -45,8 +45,8 @@
                             <li class="navitem">
                                 <a href="../ch3/" class="nav-link">Three</a>
                             </li>
-                            <li class="navitem active">
-                                <a href="./" class="nav-link">Four</a>
+                            <li class="navitem">
+                                <a href="../ch4/" class="nav-link">Four</a>
                             </li>
                             <li class="navitem">
                                 <a href="../ch5/" class="nav-link">Five</a>
@@ -54,8 +54,8 @@
                             <li class="navitem">
                                 <a href="../ch6/" class="nav-link">Six</a>
                             </li>
-                            <li class="navitem">
-                                <a href="../ch7/" class="nav-link">Seven</a>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Seven</a>
                             </li>
                         </ul>
 
@@ -66,12 +66,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../ch3/" class="nav-link">
+                                <a rel="prev" href="../ch6/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../ch5/" class="nav-link">
+                                <a rel="next" class="nav-link disabled">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -92,12 +92,20 @@
     
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#your-flask-app" class="nav-link">Your Flask App</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
                     <div class="col-md-9" role="main">
 
-</div>
+<h1 id="your-flask-app">Your Flask App</h1>
+<p>We will be building the Superlists app in Flask. The approach and the code will be a bit different, but our tests will be pretty close to the Django Superlists apps discussed in <a href="https://www.obeythetestinggoat.com/book">Percival's book</a>. </p>
+<p>Since Flask is a microframework, we don't have the same CLI to build a new application or feature within our app. In Django, when you run the command <code>$ python manage.py startapp lists</code> Django creates a brand new app with a bunch of files associated with that application. It includes an admin interface, all of your database models, and your views. This makes building with Django relatively easy and quick, but on the other hand, if you are, say, building an app that doesn't require a database or admin interface or users, then Django gives you a lot of extra stuff that you don't need, still needs to be maintained, and might contain vulnerabilities that will be patched in the future. </p>
+<p>How do we start our app with Flask? </p></div>
             </div>
         </div>
 
