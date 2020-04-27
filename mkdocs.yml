@@ -3,9 +3,16 @@ docs_dir: 'text'
 site_dir: 'docs'
 nav: 
   - Home: index.md
-  - One: ch1.md
-  - Two: ch2.md
-  - Three: ch3.md
-  - Four: ch4.md
-  - Five: ch5.md
-  - Six: ch6.md
+  - One:
+    - Intro to TDD: ch1.md
+    - Types of Tests: ch2.md
+  - Two: 
+    - Intro to Objects: ch3.md
+    - TDD with Objects: ch4.md
+  - Three: 
+    - The Internet: ch5.md
+    - TDD Online: ch6.md
+  - Four:
+    - Intro to Flask: ch7.md
+    - Smallest App: ch8.md
+  

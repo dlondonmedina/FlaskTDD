@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Your Flask App - Test-Driven Development with Flask</title>
+        <title>Getting Flask Set Up and Your First Functional Test - Test-Driven Development with Flask</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -36,23 +36,57 @@
                             <li class="navitem">
                                 <a href=".." class="nav-link">Home</a>
                             </li>
-                            <li class="navitem">
-                                <a href="../ch1/" class="nav-link">One</a>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">One <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch1/" class="dropdown-item">Intro to TDD</a>
+</li>
+                                    
+<li>
+    <a href="../ch2/" class="dropdown-item">Types of Tests</a>
+</li>
+                                </ul>
                             </li>
-                            <li class="navitem">
-                                <a href="../ch2/" class="nav-link">Two</a>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Two <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch3/" class="dropdown-item">Intro to Objects</a>
+</li>
+                                    
+<li>
+    <a href="../ch4/" class="dropdown-item">TDD with Objects</a>
+</li>
+                                </ul>
                             </li>
-                            <li class="navitem">
-                                <a href="../ch3/" class="nav-link">Three</a>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Three <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch5/" class="dropdown-item">The Internet</a>
+</li>
+                                    
+<li>
+    <a href="../ch6/" class="dropdown-item">TDD Online</a>
+</li>
+                                </ul>
                             </li>
-                            <li class="navitem">
-                                <a href="../ch4/" class="nav-link">Four</a>
-                            </li>
-                            <li class="navitem">
-                                <a href="../ch5/" class="nav-link">Five</a>
-                            </li>
-                            <li class="navitem">
-                                <a href="../ch6/" class="nav-link">Six</a>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Four <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch7/" class="dropdown-item">Intro to Flask</a>
+</li>
+                                    
+<li>
+    <a href="../ch8/" class="dropdown-item">Smallest App</a>
+</li>
+                                </ul>
                             </li>
                         </ul>
 
@@ -80,8 +114,21 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#your-flask-app" class="nav-link">Your Flask App</a>
+            <li class="nav-item" data-level="1"><a href="#getting-flask-set-up-and-your-first-functional-test" class="nav-link">Getting Flask Set Up and Your First Functional Test</a>
               <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#getting-flask-up-and-running" class="nav-link">Getting Flask Up and Running</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#step-one-install-flask" class="nav-link">Step One: Install Flask</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#step-two-set-up-your-directory" class="nav-link">Step Two: Set Up Your Directory</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -89,10 +136,138 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="your-flask-app">Your Flask App</h1>
-<p>We will be building the Superlists app in Flask. The approach and the code will be a bit different, but our tests will be pretty close to the Django Superlists apps discussed in <a href="https://www.obeythetestinggoat.com/book">Percival's book</a>. </p>
-<p>Since Flask is a microframework, we don't have the same CLI to build a new application or feature within our app. In Django, when you run the command <code>$ python manage.py startapp lists</code> Django creates a brand new app with a bunch of files associated with that application. It includes an admin interface, all of your database models, and your views. This makes building with Django relatively easy and quick, but on the other hand, if you are, say, building an app that doesn't require a database or admin interface or users, then Django gives you a lot of extra stuff that you don't need, still needs to be maintained, and might contain vulnerabilities that will be patched in the future. </p>
-<p>How do we start our app with Flask? </p></div>
+<h1 id="getting-flask-set-up-and-your-first-functional-test">Getting Flask Set Up and Your First Functional Test</h1>
+<p>The first functional test checks three things:</p>
+<ul>
+<li>Is the selenium library installed and can we import webdriver</li>
+<li>Is there a server serving listening and responding at localhost on port 5000 <strong>This is different from the Django.</strong></li>
+<li>Is that server responding with the page_source attribute set to "Flask"</li>
+</ul>
+<p>Here is the code:</p>
+<pre><code class="python">from selenium import webdriver
+
+browser = webdriver.Firefox()
+browser.get('http://localhost:5000')
+
+assert 'Flask' in browser.page_source
+</code></pre>
+
+<p><em>functional_tests.py</em></p>
+<p>As I follow along with this, I get this error:
+ <code>$ python functional_tests.py
+Traceback (most recent call last):
+  File "functional_tests.py", line 1, in &lt;module&gt;
+    from selenium import webdriver
+ModuleNotFoundError: No module named 'selenium'</code></p>
+<p>Notice that the test failed, but not in the way we expected. Should I have written a separate test that selenium was installed? I could have, but since Python throws an import error anyway, it's not that big of a problem to not have a separate test for it. If you're getting this error as well, then the following should fix things up:</p>
+<pre><code class="bash">(env) $ pip install selenium 
+</code></pre>
+
+<p>After Selenium is installed, then you should get the expected error message. We should expect a connection error because we haven't set up Flask yet, so there's no server listening. </p>
+<h1 id="getting-flask-up-and-running">Getting Flask Up and Running</h1>
+<p>I know I haven't installed Flask in this virtual environment, yet, so I know I'll need to do that first. Django has a CLI to help you build your core site, but since Flask is a lightweight Framework with few moving parts, we don't get that. At the same time, we have far fewer files to deal with and far fewer moving parts, so it's a toss up. Flask is a great tool for smaller projects. </p>
+<h2 id="step-one-install-flask">Step One: Install Flask</h2>
+<p>Installing Flask is pretty easy. Using pip package manager we just need to install Flask. <strong>Make sure that your virtual environment is activated</strong></p>
+<p><code>(env) $ pip install Flask</code></p>
+<p>At this point, it would also be valuable to create a requirements.txt file. This file allows you to easily set up your app on a different machine without having to move all of the dependencies. You will be using the "freeze" command that is build into pip. This command echos the list of dependencies that have been installed in this virtual environment using pip install. Try it out in the terminal and you'll see something like this:</p>
+<pre><code class="bash">(env) $ pip freeze
+Click==7.0
+Flask==1.1.1
+itsdangerous==1.1.0
+Jinja2==2.11.1
+MarkupSafe==1.1.1
+selenium==3.141.0
+urllib3==1.25.8
+Werkzeug==1.0.0
+</code></pre>
+
+<p>When I installed Flask, I also installed its dependencies (Click, itsdangerous, Jinja2, urllib3, werkzeug). You don't need to do this every time, this was just to show you how pip freeze works. </p>
+<p>Now you'll need to somehow write the output of <code>pip freeze</code> into a text file called <em>requirements.txt</em> You could copy and past from the terminal, but that's too much work. Instead, you can use the &gt; or &gt;&gt; symbol to write the output of a command directly to a file like so:</p>
+<pre><code class="bash">(env) $ pip freeze &gt; requirements.txt
+</code></pre>
+
+<p>If I use the &gt; symbol, it will either create or overwrite the file to the right of the symbol. <strong>NOTICE: if you overwrite data will be lost</strong> This is the correct choice in this case because each time we update our requirements.txt file, we want to overwrite it. If we were appending to a file for some other reason, then we would use &gt;&gt; which either creates or appends to the file to the right of the symbol.</p>
+<h2 id="step-two-set-up-your-directory">Step Two: Set Up Your Directory</h2>
+<p>Understanding where your files live is crucial in programming. If the files are not in the right place or if your directory is misshapen, you'll have lots of problems. Django's CLI tool does much of this for you. In Flask, we're on our own. Right now your folder structure within your flask directory should look like this:</p>
+<pre><code>|--functional_tests.py
+|--geckodriver.log
+|--requirements.txt
+|--env (Virtual Environment Directory)
+|   |--[...]
+</code></pre>
+
+<p>We need to create a directory and three files. We need to create a directory called "app" and a file called superlists.py that are both siblings of functional_tests.py. This means they are direct children of our flask directory. We also need to create two files called __init__.py and routes.py that is a child of the "app" directory. Here are the commands in the terminal.</p>
+<pre><code class="bash">(env) $ mkdir app &amp;&amp; touch superlists.py app/__init__.py app/routes.py
+</code></pre>
+
+<p>You can also enter them as three separate commands if you wish. If this was successful, your flask directory should look like this:</p>
+<pre><code>|--functional_tests.py
+|--geckodriver.log
+|--requirements.txt
+|--superlists.py
+|--app
+|   |--__init__.py
+|   |--routes.py
+|--env (Virtual Environment Directory)
+|   |--[...]
+</code></pre>
+
+<p><strong>If your directory doesn't look exactly like this then go back and check for mistakes before you move on.</strong> Now that those files are all created, you can start coding so that the tests will pass. You will be editing superlists.py, __init__.py and routes.py. The first is the script that launches the Flask application. </p>
+<pre><code class="python">from app import app
+</code></pre>
+
+<p><em>superlists.py</em></p>
+<p>The second is the core of the app (for now). </p>
+<pre><code class="python">from flask import Flask
+
+app = Flask(__name__)
+
+from app import routes
+</code></pre>
+
+<p><em>__init__.py</em></p>
+<p>The third is a file that manages the routes. </p>
+<pre><code class="python">from app import app
+
+@app.route('/')
+@app.route('/index')
+def index():
+   return &quot;Hello, Flask!&quot;
+</code></pre>
+
+<p>We'll be discussing all of these later on in great detail. Once you've created all of these files, you'll need to start your Flask app so that you can run your tests again. This will require you to have 2 terminals open. In the first terminal, start the Flask app:</p>
+<pre><code class="bash">(env) $ flask run
+</code></pre>
+
+<p>and in the second terminal (make sure you've navigated to your project directory and activated your virtual environment):</p>
+<pre><code class="bash">(env) $ python functional_tests.py
+</code></pre>
+
+<p>At this point, the functional tests will open a new browser and call the Flask app. As soon as that loads, you can close the browser. In your terminal, you should get no error messages. If that's the case, you've successfully completed this. If not, you'll need to go through and revise your code until it works. Make sure to read any error messages for a clue as to what to fix. </p>
+<p>Now, you'll want to initialize your flask project directory as a git repository. Create a gitignore file that contains at least the following:</p>
+<pre><code># Byte-compiled / optimized / DLL files
+__pycache__/
+
+
+# Unit test / coverage reports
+.pytest_cache/
+
+
+# Flask stuff:
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+
+# Environments
+env/
+
+# Visual Studio Code
+.vscode/
+</code></pre>
+
+<p><em>.gitignore</em></p>
+<p>Then create a new github repository and push your local repository to github. You're done with getting started!</p></div>
             </div>
         </div>
 
