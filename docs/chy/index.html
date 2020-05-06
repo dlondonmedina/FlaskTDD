@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Introducing the unittest Module - Test-Driven Development with Flask</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Test-Driven Development with Flask</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">One <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch1/" class="dropdown-item">1. Intro to TDD</a>
+</li>
+                                    
+<li>
+    <a href="../ch2/" class="dropdown-item">2. Types of Tests</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Two <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch3/" class="dropdown-item">3. Intro to Objects</a>
+</li>
+                                    
+<li>
+    <a href="../ch4/" class="dropdown-item">4. TDD with Objects</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Three <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch5/" class="dropdown-item">5. The Internet</a>
+</li>
+                                    
+<li>
+    <a href="../ch6/" class="dropdown-item">6. TDD Online</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Four <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch7/" class="dropdown-item">7. Intro to Flask</a>
+</li>
+                                    
+<li>
+    <a href="../ch8/" class="dropdown-item">8. Smallest App</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Five <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch9/" class="dropdown-item">9. Intro to HTML</a>
+</li>
+                                    
+<li>
+    <a href="../ch10/" class="dropdown-item">10. Intro to Templates</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#introducing-the-unittest-module" class="nav-link">Introducing the unittest Module</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#a-note-to-begin" class="nav-link">A note to begin:</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#unittests" class="nav-link">Unittests</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#comments" class="nav-link">Comments</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#back-to-our-tests" class="nav-link">Back to our Tests</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="introducing-the-unittest-module">Introducing the unittest Module</h1>
+<h2 id="a-note-to-begin">A note to begin:</h2>
+<p>One thing to notice before we go much further is that we have a number of tools running at the same time to do our tests.</p>
+<ol>
+<li>
+<p>Our Flask server that is launched when we type <code>flask run</code> in our terminal. This web server runs on your local machine, is not visible to the outside world, and listens at the <a href="https://en.wikipedia.org/wiki/IP_address">IP address</a> 127.0.0.1 on port 5000. In the URL bar, this will look like <code>127.0.0.1:5000</code>. </p>
+</li>
+<li>
+<p>Our Flask app that the Flask server calls when it receives requests.</p>
+</li>
+<li>
+<p>Our <em>functional_test.py</em> script, which opens a web browser to send particular requests to the Flask server, and evaluates the server's responses.
+I recommend, perhaps, diagramming these for yourself in some fashion if it helps you keep things in order. </p>
+</li>
+</ol>
+<h2 id="unittests">Unittests</h2>
+<p>Our last iteration of our app was extremely simple. It didn't even use any HTML and didn't properly return a web-page; just the string "Hello, Flask!" That's not particularly useful if we're trying to build a little web-app, but it's a start. Now we're moving on to bigger and better things. You'll actually have a proper webpage. Our first step will be to modify our functional test so that it looks for a title property. We'll alo add the story that Percival mentions So let's go to the functional test:</p>
+<pre><code class="python">from selenium import webdriver
+
+browser = webdriver.Firefox()
+
+# Edith (our test) has heard about a cool new online to-do app. She goes
+# to check out its homepage
+browser.get('http://127.0.0.1:5000') # or http://localhost:5000
+
+# She notices the page title and header mention to-do lists
+assert 'To-Do' in browser.title
+
+# She is invited to enter a to-do item straight away
+
+# She types &quot;Buy peacock feathers&quot; into a text box (Edith's hobby
+# is tying fly-fishing lures)
+
+# When she hits enter, the page updates, and now the page lists
+# &quot;1: Buy peacock feathers&quot; as an item in a to-do list
+
+# There is still a text box inviting her to add another item. She
+# enters &quot;Use peacock feathers to make a fly&quot; (Edith is very methodical)
+
+# The page updates again, and now shows both items on her list
+
+# Edith wonders whether the site will remember her list. Then she sees
+# that the site has generated a unique URL for her -- there is some
+# explanatory text to that effect.
+
+# She visits that URL - her to-do list is still there.
+
+# Satisfied, she goes back to sleep
+
+browser.quit()
+</code></pre>
+
+<p><em>functional_tests.py</em></p>
+<h2 id="comments">Comments</h2>
+<p>There are lot of opinions when it comes to how we add comments to our code. In a traditional CS program, we'd expect students to write extensive comments. This is to help the instructor see what you believe you are doing with a particular line of code or function. Likewise, the practice of writing such comments is useful for you to become conscious of what your code is doing. Comments can also be used as a sort of pseudocode to describe what functions your code will need to accomplish (as in the above example). </p>
+<p>In professional settings, there is a debate as to how many comments are necessary. On the one hand, some argue that your code should be clearly written enough that you don't need any comments. If your code needs comments to explain what's going on, you probably have a problem with your code. They also argue that if you change your code in the future without changing your comments, the comments can become misleading and more of a hinderance for future developers.</p>
+<p>On the other hand, some argue that comments provide crucial insight to you and other developers about what the code is supposed to do. They give future developers a sense of what you were thinking when you were writing the code. They are also important if you are writing an API or other code that future developers will extend. Additionally, comments are frequently used to generate documentation. For instance Sphinx and other documentation generation tools can automatically create docs based on the comments.</p>
+<p>Beyond all of this, if you're working for a company, that company will likely have its own approach to comments, and probably a majority of your first period there will be reading the code and comments that you will later be working on. </p>
+<p>This is all to say, you'll have to decide how much you want to comment your code based on the project. A general rule of thumb is that if the code doesn't obviously tell you what is happening, it's worth commenting. For example the first comment is probably not needed, but the second is (I also probably wouldn't write that generator just to save a few lines of code anyway):</p>
+<pre><code class="python"># Increment age by 1 
+age += 1
+
+n = int(input(&quot;How many players? &quot;))
+# prompt users for name and age for each player
+age_map = {input(&quot;Name?&quot;): int(input(&quot;Age?&quot;)) for i in range(n)}
+</code></pre>
+
+<h2 id="back-to-our-tests">Back to our Tests</h2>
+<p>If we start up our Flask server:</p>
+<pre><code>(env) $ flask run
+</code></pre>
+
+<p>and in another shell run our functional tests, you'll get an error like this:</p>
+<pre><code>(env) $ python functional_tests.py
+Traceback (most recent call last):
+  File &quot;functional_tests.py&quot;, line 6, in &lt;module&gt;
+    assert 'To-Do' in browser.title
+AssertionError
+</code></pre>
+
+<p>We are getting the error that we are expecting! However, we want to move over to the unittest framework to make our test a little bit more robust. After all, we'll be building an entire testing suite for our application: every operation we want should be tested. This will be very similar to the test in Percival's book, but before that, take a moment to consider the unittest library.</p>
+<h3 id="unittest">unittest</h3>
+<p>The <a href="https://docs.python.org/3/library/unittest.html">unittest library</a> is a framework for writing unit tests. </p>
+<p>A unit test is an automated test that checks the functionality of one unit of a particular application. For instance, one unit of our webpage is the title that shows up on the browser tab. A unit test will test that that is as it should be. Likewise, it might test a single function of our application. When writing a unit test, we need to provide all of the conditions or dependencies except the one variable that is being tested. So our browser title test needs to just test that the browser title contains particular content. It shouldn't check that the browser starts up or anything that appears on the page or that the URL is correct. </p>
+<p>A functional test is a test that checks a particular functionality of our application. For instance, a functional test might check that we can input a new item into a list and when we do so the item gets added to the database. Unlike a unit test that might have distinct tests for user input and writing to the database, the functional test tries to see that the components work together properly. </p>
+<p>Another way to think of this: unit tests check a discrete section of code. Functional tests simulate user experience. </p>
+<p>So, now lets update our functional_tests.py file. You'll notice that this is a functional test because it tests a component of our application as a user would encounter it. We'll write unittests later. </p>
+<pre><code class="python">from selenium import webdriver
+import unittest 
+
+class NewVisitorTest(unittest.TestCase):
+
+   def setUp(self):
+      self.browser = webdriver.Firefox()
+
+   def tearDown(self):
+      self.browser.quit()
+
+   def test_can_start_a_list_and_retrieve_it_later(self):
+      # Call homepage
+      self.browser.get('http://127.0.0.1:5000')
+
+      # Old way: 
+      # assert 'To-Do' in browser.title
+
+      # Using unittest methods
+      self.assertIn('To-Do', self.browser.title)
+
+      self.fail('Finish writing the test!')
+
+      # She is invited to enter a to-do item straight away
+
+      # She types &quot;Buy peacock feathers&quot; into a text box (Edith's hobby
+      # is tying fly-fishing lures)
+
+      # When she hits enter, the page updates, and now the page lists
+      # &quot;1: Buy peacock feathers&quot; as an item in a to-do list
+
+      # There is still a text box inviting her to add another item. She
+      # enters &quot;Use peacock feathers to make a fly&quot; (Edith is very methodical)
+
+      # The page updates again, and now shows both items on her list
+
+      # Edith wonders whether the site will remember her list. Then she sees
+      # that the site has generated a unique URL for her -- there is some
+      # explanatory text to that effect.
+
+      # She visits that URL - her to-do list is still there.
+
+      # Satisfied, she goes back to sleep
+
+if __name__ in '__main__':
+   unittest.main(warnings='ignore')
+</code></pre>
+
+<p>Once again, we want to test it. If you stopped your Flask server, launch it again. Then let's run our functional tests and see the results:</p>
+<pre><code>(env) $ python functional_tests.py
+F
+======================================================================
+FAIL: test_can_start_a_list_and_retrieve_it_later (__main__.NewVisitorTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;functional_tests.py&quot;, line 20, in test_can_start_a_list_and_retrieve_it_later
+    self.assertIn('To-Do', self.browser.title)
+AssertionError: 'To-Do' not found in ''
+
+----------------------------------------------------------------------
+Ran 1 test in 37.913s
+
+FAILED (failures=1)
+</code></pre>
+
+<p>Woo! Our tests are failing as they should be. Notice, we haven't added anything to our app in this chapter, and that's intentional. We now have a test that will pass once our app is returning a page that has the correct title and that will be our next step. For now, it would be a good moment to commit your project and push it to github. </p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

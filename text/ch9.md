@@ -1,153 +1,53 @@
-# Getting Flask Set Up and Your First Functional Test
-The first functional test checks three things:
+# Web Application Anatomy
 
-* Is the selenium library installed and can we import webdriver
-* Is there a server serving listening and responding at localhost on port 5000 **This is different from the Django.**
-* Is that server responding with the page_source attribute set to "Flask"
+At the end of Chapter 8, you should have an extremely basic web application built in Flask. That said, your application does the functions necessary for any web application: it listens for requests, if the requests are valid, it returns a reliable kind of data. That said, the web apps that you see online seem to do so much more. This chapter looks a little bit at the anatomy of web applications so that we understand what's going on when we move into Flask Templates in the next chapter.
 
-Here is the code:
+## Anatomy of a Web Application
 
-``` python
-from selenium import webdriver
+Web applications have two main components. They have the backend, which is a program or set of programs that run on a server someplace. They also have a frontend that runs in the client (e.g. the user's web browser). The backend of a web application deals with databases, processing, listening for requests, and assembling data that will be sent to the frontend. Also, it might collect the HTML/CSS and JavaScript that is sent to the client. The frontend of the application is the code that is run by the web browser or is the app that the user interacts with on their device. You might think of the frontend as the user interface and the backend is the business logic. 
 
-browser = webdriver.Firefox()
-browser.get('http://localhost:5000')
+Let's begin by thinking about a simple, static website. By static, I mean the content that is displayed to the user is hardcoded into HTML/CSS and Javascript files. The server is a web server, possibly Apache or NGINX or even Github Pages. The server listens for requests (probably just GET requests because it is static) that have addresses like: ```https://example.github.io/about.html``` This would tell the server to look for an HTML file called about.html. If that file is present, the server sends that file back to the client. The backend is the server that listens for and then sends the appropriate resources, in this case an HTML file back to the client. The frontend component is the HTML page and any CSS and Javascript that is interpreted by the web browser into the lovely page you see. 
 
-assert 'Flask' in browser.page_source
-```
-*functional_tests.py*
+Many sites on the internet do a bit more than send static HTML files in part because we want the sites to be dynamic and flexible. Most backend components now do not serve up static HTML files, but rather generate HTML in real time based on the parameters of our request. For instance, in our example from last chapter, our Flask app sent out the string 'Hello Flask!' if a request was sent to the domain name without any parameters. Generally backends will either create the HTML/CSS and Javascript to be sent to the client, which makes the frontend and backend tightly coupled, or they create a data object, perhaps JSON, which can be sent to either a web frontend or a mobile app. The latter are loosely coupled because the frontend is separate from the backend and they communicate through a set of protocols and established paths. This pattern is similar to most APIs. 
 
-As I follow along with this, I get this error:
- ```
-$ python functional_tests.py
-Traceback (most recent call last):
-  File "functional_tests.py", line 1, in <module>
-    from selenium import webdriver
-ModuleNotFoundError: No module named 'selenium'
- ```
+As you might suspect, frontends are either code that can be read by the web browser or a mobile application. They are the user interface that displays content to the user and collects input from the user. HTML/CSS and Javascript are frontend technologies (though we can write Javascript for the backend, too). These programming languages are designed to be interpreted by a web browser, and they contain the content, display rules, and actions that the web app wants to provide to the user. The same content, display rules, and actions can be developed into a mobile app as well. In either case, these allow the user to send and receive requests from the backend in predictable and stylized ways. We're going to be doing very little with frontends in this book, but since Flask does come with a way to develop frontends, we will learn a bit. To do so, we're going to digress into HTML.
 
-Notice that the test failed, but not in the way we expected. Should I have written a separate test that selenium was installed? I could have, but since Python throws an import error anyway, it's not that big of a problem to not have a separate test for it. If you're getting this error as well, then the following should fix things up:
+## A short introduction to HTML
 
-``` bash 
-(env) $ pip install selenium 
-```
-After Selenium is installed, then you should get the expected error message. We should expect a connection error because we haven't set up Flask yet, so there's no server listening. 
+HTML, or HyperText Markup Language, is not really a programming language, but rather a way of tagging text so that it can be displayed in an attractive fashion by a web browser (Firefox, Chrome, Edge, Safari, Opera, etc...). A fun experiment to see HTML in action is to visit your favorite website and inspect the source code (Right Click -> View Page Source in most browsers). This will reveal what is sent from the server to your web browser. HTML is simply a long string that is sent by the server and interpreted by your browser. That string is almost always encoded in UTF-8, which is a way of converting characters into 4-8 bit units (bytes or octets), which is the binary data that actually travels across the network. You don't need to worry about the encoding, just about the strings that are being sent from your server to the user using your app.
 
-# Getting Flask Up and Running
-I know I haven't installed Flask in this virtual environment, yet, so I know I'll need to do that first. Django has a CLI to help you build your core site, but since Flask is a lightweight Framework with few moving parts, we don't get that. At the same time, we have far fewer files to deal with and far fewer moving parts, so it's a toss up. Flask is a great tool for smaller projects. 
+The best way to start thinking about HTML is to imagine a Word document. In that word document, you might have a single word that is in bold font. How does Word know that that single word should be bolded? Well, because behind the scenes, there are tags surrounding that word that indicate that it should be bold. Something like this: This is a <strong>bold</strong> word. Of course, we don't see all of these tags because it would make it tricky to deal with our word documents. Instead, the User Interface renders the text as we would expect to see it. The tags tell the User Interface how the thing they surround should be displayed. HTML is exactly the same. We have our main text of our website. That text is "marked up" or sections of it are surrounded by tags that tell the browser how that bit of text should be displayed.
+Basic Anatomy
 
-## Step One: Install Flask
-Installing Flask is pretty easy. Using pip package manager we just need to install Flask. **Make sure that your virtual environment is activated**
+The basic anatomy of HTML includes an opening tag and a closing tag. Let's take this one: ```<p> This is an opening tag that marks the beginning of a paragraph. This paragraph that you are reading now is started by this tag. When the paragraph ends, there is a closing tag that looks like this: </p>``` This tag marks the ending of a paragraph. Everything between the matching opening and closing tags will be part of the same paragraph and most browsers display a paragraph as a block of text with hard breaks on either side. You'll notice a couple things: first, the human readable characters inside of the greater than and less than signs are intuitive and matching. "p" stands for paragraph. If I want to make something bold, I'd use the tags ```<strong> and </strong>``` where "strong" means the font should be strong, or bold. The web browser reads this tag-pair and displays the text between them in a bold font. The second thing to notice is that the closing tag is the same as the opening tag except it has a "/" character inside it. This is required and almost all tags have an opening and closing tag.
 
- ```
- (env) $ pip install Flask
- ```
+In addition to the opening and closing tags, the opening tag may contain some additional information. For instance, let's look at a link: ```<a href="www.google.com">This text between these "a" tags will be a link to www.google.com</a>``` 'href="..."' means hyperlink reference. The "a" tag is an anchor tag that anchors a bit of text to some other site. In other words, the "a" tag creates a link to some other location. The extra parameter associated with the "a" tag is "href" and that tells the browser where this link should go. By default, most web browsers display a link as blue, underlined text. You will also see styles, classes, and id's being added to various elements in HTML. These are used to tell the browser what special styling (or font/color/positioning) should be added to the content between the tags. Classes are used to identify a group of elements which will all receive the same styling. Ids are used to identify a particular tag (this paragraph). As you go through the lessons for this week, pay attention to the various tags and parameters that are added to those tags. There won't be a test, and there are plenty of cheat sheets online to help you.
+Types of tags
+Block level elements
 
-At this point, it would also be valuable to create a requirements.txt file. This file allows you to easily set up your app on a different machine without having to move all of the dependencies. You will be using the "freeze" command that is build into pip. This command echos the list of dependencies that have been installed in this virtual environment using pip install. Try it out in the terminal and you'll see something like this:
-``` bash
-(env) $ pip freeze
-Click==7.0
-Flask==1.1.1
-itsdangerous==1.1.0
-Jinja2==2.11.1
-MarkupSafe==1.1.1
-selenium==3.141.0
-urllib3==1.25.8
-Werkzeug==1.0.0
-```
-When I installed Flask, I also installed its dependencies (Click, itsdangerous, Jinja2, urllib3, werkzeug). You don't need to do this every time, this was just to show you how pip freeze works. 
+Block level elements are HTML tags that define blocks of text. These are usually displayed starting on new lines. Paragraphs are an example of a block level element. These elements are used to do the major positioning of the text on the page. For instance, all of the headings on this page are wrapped with some sort of heading tag. These are block level elements and they create a line break before and after the surrounded text. This is important to remember because even if you have line breaks in your HTML document, the only way for the browser to know that the line should be broken is with some sort of block element. So if you were to look at the source of this paragraph, you'd see that right now I have six line breaks, but none of those are displayed in the browser because they are within a single paragraph block and I don't have any tags to tell the browser to put in line breaks. This is the hardest thing to get with block elements. If you want a line break, you need to tell the browser either with the ```<br>``` tag, which tells the browser to put in a line break here, or by surrounding your text with block level tags.
+Inline Tags
 
-Now you'll need to somehow write the output of ```pip freeze``` into a text file called *requirements.txt* You could copy and past from the terminal, but that's too much work. Instead, you can use the > or >> symbol to write the output of a command directly to a file like so:
-``` bash
-(env) $ pip freeze > requirements.txt
-```
-If I use the > symbol, it will either create or overwrite the file to the right of the symbol. **NOTICE: if you overwrite data will be lost** This is the correct choice in this case because each time we update our requirements.txt file, we want to overwrite it. If we were appending to a file for some other reason, then we would use >> which either creates or appends to the file to the right of the symbol.
+The other kind of tags are "inline tags." These tags do not tell the browser to create line breaks or a block, but rather effect the styling of a particular bit of text. Links, as you saw above, are inline elements. They tell the browser to put a hyperlink on a particular span of text, but they don't break the line. Strong tags are also inline tags. The more tricky ones are the ```<button>``` tag, which turns the surrounded text into a button, like so: ```HI```
+or image tags, which drop an image into the document. Inline style tags are less frequently used in contemporary web development, I think, because we can do much more effective styling with CSS and block elements.
+Basic Layout of HTML document
 
-## Step Two: Set Up Your Directory
-Understanding where your files live is crucial in programming. If the files are not in the right place or if your directory is misshapen, you'll have lots of problems. Django's CLI tool does much of this for you. In Flask, we're on our own. Right now your folder structure within your flask directory should look like this:
-```
-|--functional_tests.py
-|--geckodriver.log
-|--requirements.txt
-|--env (Virtual Environment Directory)
-|   |--[...]
-```
-We need to create a directory and three files. We need to create a directory called "app" and a file called superlists.py that are both siblings of functional_tests.py. This means they are direct children of our flask directory. We also need to create two files called __init\__.py and routes.py that is a child of the "app" directory. Here are the commands in the terminal.
-``` bash
-(env) $ mkdir app && touch superlists.py app/__init__.py app/routes.py
-```
-You can also enter them as three separate commands if you wish. If this was successful, your flask directory should look like this:
-```
-|--functional_tests.py
-|--geckodriver.log
-|--requirements.txt
-|--superlists.py
-|--app
-|   |--__init__.py
-|   |--routes.py
-|--env (Virtual Environment Directory)
-|   |--[...]
-```
-**If your directory doesn't look exactly like this then go back and check for mistakes before you move on.** Now that those files are all created, you can start coding so that the tests will pass. You will be editing superlists.py, __init\__.py and routes.py. The first is the script that launches the Flask application. 
+An html document is a file with the .html extension. In general, it's layout is like this:
 
-``` python
-from app import app
-```
-*superlists.py*
-
-The second is the core of the app (for now). 
-``` python
-from flask import Flask
-
-app = Flask(__name__)
-
-from app import routes
-```
-*__init\__.py*
-
-The third is a file that manages the routes. 
-
-``` python
-from app import app
-
-@app.route('/')
-@app.route('/index')
-def index():
-   return "Hello, Flask!"
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <title>Document</title>
+</head>
+<body>
+The body of your webpage goes here.
+</body>
+</html>  
 ```
 
-We'll be discussing all of these later on in great detail. Once you've created all of these files, you'll need to start your Flask app so that you can run your tests again. This will require you to have 2 terminals open. In the first terminal, start the Flask app:
-``` bash
-(env) $ flask run
-```
-and in the second terminal (make sure you've navigated to your project directory and activated your virtual environment):
-``` bash
-(env) $ python functional_tests.py
-```
-At this point, the functional tests will open a new browser and call the Flask app. As soon as that loads, you can close the browser. In your terminal, you should get no error messages. If that's the case, you've successfully completed this. If not, you'll need to go through and revise your code until it works. Make sure to read any error messages for a clue as to what to fix. 
+Everything in between the head tags is not displayed except for the title. That is displayed on the browser tab. The title of this page is "Everyday Coding -- HTML". Everything between the body tags makes up the body of the page that you see in the window. Generally, css, links, and javascript is put into the head of the document and the content you want the user to see, of course, must go in the body section. Older HTML pages might have additional information in the first line, but this sample is the convention for HTML5.
 
-Now, you'll want to initialize your flask project directory as a git repository. Create a gitignore file that contains at least the following:
-```
-# Byte-compiled / optimized / DLL files
-__pycache__/
+## Differences Between Browsers
 
-
-# Unit test / coverage reports
-.pytest_cache/
-
-
-# Flask stuff:
-db.sqlite3
-db.sqlite3-journal
-instance/
-.webassets-cache
-
-# Environments
-env/
-
-# Visual Studio Code
-.vscode/
-```
-*.gitignore*
-
-Then create a new github repository and push your local repository to github. You're done with getting started!
+One note that's pretty important in thinking about HTML: each browser renders HTML in a slightly different manner, so it's important to test your markup in the major browsers and on various devices. We're not going into design or the complexity of front end development in this class, as that would be the topic of an entire program (WATS). If you are excited about that sort of thing, the sky's the limit, so to speak, and it's a rapidly growing and changing field.

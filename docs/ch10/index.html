@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Introducing the unittest Module - Test-Driven Development with Flask</title>
+        <title>10. Intro to Templates - Test-Driven Development with Flask</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -41,11 +41,11 @@
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="../ch1/" class="dropdown-item">Intro to TDD</a>
+    <a href="../ch1/" class="dropdown-item">1. Intro to TDD</a>
 </li>
                                     
 <li>
-    <a href="../ch2/" class="dropdown-item">Types of Tests</a>
+    <a href="../ch2/" class="dropdown-item">2. Types of Tests</a>
 </li>
                                 </ul>
                             </li>
@@ -54,11 +54,11 @@
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="../ch3/" class="dropdown-item">Intro to Objects</a>
+    <a href="../ch3/" class="dropdown-item">3. Intro to Objects</a>
 </li>
                                     
 <li>
-    <a href="../ch4/" class="dropdown-item">TDD with Objects</a>
+    <a href="../ch4/" class="dropdown-item">4. TDD with Objects</a>
 </li>
                                 </ul>
                             </li>
@@ -67,11 +67,11 @@
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="../ch5/" class="dropdown-item">The Internet</a>
+    <a href="../ch5/" class="dropdown-item">5. The Internet</a>
 </li>
                                     
 <li>
-    <a href="../ch6/" class="dropdown-item">TDD Online</a>
+    <a href="../ch6/" class="dropdown-item">6. TDD Online</a>
 </li>
                                 </ul>
                             </li>
@@ -80,11 +80,24 @@
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="../ch7/" class="dropdown-item">Intro to Flask</a>
+    <a href="../ch7/" class="dropdown-item">7. Intro to Flask</a>
 </li>
                                     
 <li>
-    <a href="../ch8/" class="dropdown-item">Smallest App</a>
+    <a href="../ch8/" class="dropdown-item">8. Smallest App</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Five <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch9/" class="dropdown-item">9. Intro to HTML</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">10. Intro to Templates</a>
 </li>
                                 </ul>
                             </li>
@@ -96,6 +109,16 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../ch9/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
                     </ul>
                 </div>
             </div>
@@ -114,21 +137,13 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#introducing-the-unittest-module" class="nav-link">Introducing the unittest Module</a>
+            <li class="nav-item" data-level="1"><a href="#flask-templates" class="nav-link">Flask Templates</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-level="2"><a href="#a-note-to-begin" class="nav-link">A note to begin:</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-level="2"><a href="#unittests" class="nav-link">Unittests</a>
+            <li class="nav-item" data-level="2"><a href="#templates" class="nav-link">Templates</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-level="2"><a href="#comments" class="nav-link">Comments</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-level="2"><a href="#back-to-our-tests" class="nav-link">Back to our Tests</a>
+            <li class="nav-item" data-level="2"><a href="#other-frontend-options" class="nav-link">Other Frontend Options</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -139,159 +154,82 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="introducing-the-unittest-module">Introducing the unittest Module</h1>
-<h2 id="a-note-to-begin">A note to begin:</h2>
-<p>One thing to notice before we go much further is that we have a number of tools running at the same time to do our tests.</p>
-<ol>
-<li>
-<p>Our Flask server that is launched when we type <code>flask run</code> in our terminal. This web server runs on your local machine, is not visible to the outside world, and listens at the <a href="https://en.wikipedia.org/wiki/IP_address">IP address</a> 127.0.0.1 on port 5000. In the URL bar, this will look like <code>127.0.0.1:5000</code>. </p>
-</li>
-<li>
-<p>Our Flask app that the Flask server calls when it receives requests.</p>
-</li>
-<li>
-<p>Our <em>functional_test.py</em> script, which opens a web browser to send particular requests to the Flask server, and evaluates the server's responses.
-I recommend, perhaps, diagramming these for yourself in some fashion if it helps you keep things in order. </p>
-</li>
-</ol>
-<h2 id="unittests">Unittests</h2>
-<p>Our last iteration of our app was extremely simple. It didn't even use any HTML and didn't properly return a web-page; just the string "Hello, Flask!" That's not particularly useful if we're trying to build a little web-app, but it's a start. Now we're moving on to bigger and better things. You'll actually have a proper webpage. Our first step will be to modify our functional test so that it looks for a title property. We'll alo add the story that Percival mentions So let's go to the functional test:</p>
-<pre><code class="python">from selenium import webdriver
-
-browser = webdriver.Firefox()
-
-# Edith (our test) has heard about a cool new online to-do app. She goes
-# to check out its homepage
-browser.get('http://127.0.0.1:5000') # or http://localhost:5000
-
-# She notices the page title and header mention to-do lists
-assert 'To-Do' in browser.title
-
-# She is invited to enter a to-do item straight away
-
-# She types &quot;Buy peacock feathers&quot; into a text box (Edith's hobby
-# is tying fly-fishing lures)
-
-# When she hits enter, the page updates, and now the page lists
-# &quot;1: Buy peacock feathers&quot; as an item in a to-do list
-
-# There is still a text box inviting her to add another item. She
-# enters &quot;Use peacock feathers to make a fly&quot; (Edith is very methodical)
-
-# The page updates again, and now shows both items on her list
-
-# Edith wonders whether the site will remember her list. Then she sees
-# that the site has generated a unique URL for her -- there is some
-# explanatory text to that effect.
-
-# She visits that URL - her to-do list is still there.
-
-# Satisfied, she goes back to sleep
-
-browser.quit()
+<h1 id="flask-templates">Flask Templates</h1>
+<p>If you recall from the last page on Flask we created an app in our file <strong>init</strong>.py in the app folder. Then we wrapped the app with our routes (specifically the index function that returns text). When we type flask run in our terminal the built in Flask server (the service that runs our app) starts up listening on the ip address 127.0.0.1 port 5000. 127.0.0.1 is a local ip address that your computer's network card establishes for internal traffic. In other words, if I browse to 127.0.0.1 in my web browser (note: you can enter ip addresses directly into the URL bar in the web browser), my browser sends a request to my own network card and any server that happens to be running on my computer listening at that address. If you have an Apache server on your computer (Linux has one by default), then the Apache server will be listening for traffic on that address and will return some configuration info as a webpage. This IP address is a local address and cannot be accessed from the outside world, so on every computer, the local host address is the same. The port (5000) indicates which service at a particular IP address we're directing traffic to. By default, http traffic goes to port 80 and https traffic goes to port 443. Our Flask server runs at port 5000. Once the Flask server is listening on our local host, when we try to visit it, the server sends the request to our app, which has specified routes and actions to perform when particular routes are requested. Let's take a look at a sample URL to break that down a bit.</p>
+<pre><code>https://127.0.0.1/gallery.html
 </code></pre>
 
-<p><em>functional_tests.py</em></p>
-<h2 id="comments">Comments</h2>
-<p>There are lot of opinions when it comes to how we add comments to our code. In a traditional CS program, we'd expect students to write extensive comments. This is to help the instructor see what you believe you are doing with a particular line of code or function. Likewise, the practice of writing such comments is useful for you to become conscious of what your code is doing. Comments can also be used as a sort of pseudocode to describe what functions your code will need to accomplish (as in the above example). </p>
-<p>In professional settings, there is a debate as to how many comments are necessary. On the one hand, some argue that your code should be clearly written enough that you don't need any comments. If your code needs comments to explain what's going on, you probably have a problem with your code. They also argue that if you change your code in the future without changing your comments, the comments can become misleading and more of a hinderance for future developers.</p>
-<p>On the other hand, some argue that comments provide crucial insight to you and other developers about what the code is supposed to do. They give future developers a sense of what you were thinking when you were writing the code. They are also important if you are writing an API or other code that future developers will extend. Additionally, comments are frequently used to generate documentation. For instance Sphinx and other documentation generation tools can automatically create docs based on the comments.</p>
-<p>Beyond all of this, if you're working for a company, that company will likely have its own approach to comments, and probably a majority of your first period there will be reading the code and comments that you will later be working on. </p>
-<p>This is all to say, you'll have to decide how much you want to comment your code based on the project. A general rule of thumb is that if the code doesn't obviously tell you what is happening, it's worth commenting. For example the first comment is probably not needed, but the second is (I also probably wouldn't write that generator just to save a few lines of code anyway):</p>
-<pre><code class="python"># Increment age by 1 
-age += 1
-
-n = int(input(&quot;How many players? &quot;))
-# prompt users for name and age for each player
-age_map = {input(&quot;Name?&quot;): int(input(&quot;Age?&quot;)) for i in range(n)}
+<p>If I were to type that into my browser's URL bar, my browser would make a request using the https protocol, which means that the request would be encrypted, to the IP address 127.0.0.1 (port 443 by default). Along with that request, it would say "give me the resource gallery.html." The Apache server listening at that IP address and port would receive the request and look for a file called gallery.html. If that file exists, then the server will send the file back to the browser (or client) with a response code of 200 (meaning, success). If that file or resource does not exist, then the server would send back response code 404 (meaning, error: resource not found). As the browser receives the page gallery.html from the server, it would read through the header to see if there are any additional files to include like style sheets or javascript files. It will make additional requests to the server (or other servers) to gather those additional resources. The browser then loads all of those resources, applies any relevant scripts and styles, and gives you a lovely web page that you can see in the browser window. That's basically how static web sites work. They are a bunch of html files living on a server.</p>
+<p>Flask is similar but instead of simply being a static set of html files, it is a dynamic application. So, let's look at another URL to explain this.</p>
+<pre><code>https://127.0.0.1/index
 </code></pre>
 
-<h2 id="back-to-our-tests">Back to our Tests</h2>
-<p>If we start up our Flask server:</p>
-<pre><code>(env) $ flask run
+<p>In this case, my browser makes a request using the https protocol to IP address 127.0.0.1 (port 443 by default), exactly like last time. This time, however, the request is asking not for a static html file, but rather a resource called "index." Now Flask knows about this particular resource because we created the route "/index" in our routes.py file and applied that route to the application. The application running on the Flask server knows that when a browser requests that resource ("/index") or that route, it needs to call the index() method. If we look at that method, we know that it returns "Hello, Flask!" So, the app gathers that and sends it back to the client. This is why you get a page with Hello, Flask! at the top of it. The method at a particular route could be more complex and could generate more stuff, which we're going to talk about on this page, but overall, this is how the Flask server handles traffic. It looks at everything after the base domain (127.0.0.1 or www.example.com, or whatever) and calls all of the appropriate functions, which gather data from a database (or put data into a database), pull up templates, populate those templates with data, and finally send the populated templates as html strings to the browser to display just as if they were static html pages (just built on the fly).</p>
+<h2 id="templates">Templates</h2>
+<p>A template is little more than an html document with variables. The problem with html files and static pages is that you cannot change the content in them without using javascript. Let's say I want to create a blog that's going to have a million posts. To do this statically, I'd need to either have one page with a million spots for blog entries with the blog entries already written out, or I'd need a million files where all of the content (menus, footers, borders, etc) are all exactly the same, but the text and author of the particular post might be different. Here is an example of what a static blog page might look like:</p>
+<pre><code class="html">&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Blog post 200&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;nav&gt;
+   &lt;ul&gt;
+      &lt;li&gt;Home&lt;/li&gt;
+      &lt;li&gt;Author&lt;/li&gt;
+      &lt;li&gt;
+         Posts
+         &lt;ul&gt;
+            &lt;li&gt;1&lt;/li&gt;
+            &lt;li&gt;2&lt;/li&gt;
+            &lt;li&gt;3&lt;/li&gt;
+            &lt;li&gt;4&lt;/li&gt;
+            &lt;li&gt;...&lt;/li&gt;            
+            &lt;li&gt;200&lt;/li&gt;
+         &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;Contact&lt;/li&gt;
+   &lt;/ul&gt;
+&lt;/nav&gt;
+&lt;h1&gt;Post 200&lt;/h1&gt;
+&lt;h2&gt;Dylan Medina&lt;/h2&gt;
+&lt;p&gt;Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magnam dolorum earum, quae blanditiis minima quis ipsam labore, ad, veniam iste quod ipsa aliquam! Alias numquam quas neque repellendus eaque. Sunt. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae tempore deserunt ipsam libero reiciendis consequatur fugit sit saepe repudiandae! Quos quaerat fugiat voluptatibus accusantium esse earum, similique eveniet nam dolor! Culpa odio optio eaque porro aliquid accusantium veritatis iste voluptates fugiat vel, deserunt, placeat officia. Sequi at error, possimus totam, tempore pariatur est voluptatum, quis asperiores laboriosam rerum temporibus necessitatibus. Quis delectus expedita quas explicabo debitis laudantium. Fugiat, alias in incidunt voluptates adipisci at nemo error dignissimos eos. Mollitia voluptas expedita rem veritatis minima ex doloribus reprehenderit accusantium beatae. Dignissimos! Ipsam numquam quo quod illum esse est, ullam ea veritatis voluptatem iusto qui, voluptatum quisquam corporis blanditiis voluptate vel quaerat dicta, officiis delectus possimus voluptas ratione pariatur doloremque. Rerum, harum! Numquam fugiat rerum molestiae assumenda necessitatibus eveniet accusamus at ut sed unde. Dicta odio autem corporis sunt commodi, rerum excepturi quos libero labore. Mollitia inventore eveniet dicta, aliquid enim ullam!&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 
-<p>and in another shell run our functional tests, you'll get an error like this:</p>
-<pre><code>(env) $ python functional_tests.py
-Traceback (most recent call last):
-  File &quot;functional_tests.py&quot;, line 6, in &lt;module&gt;
-    assert 'To-Do' in browser.title
-AssertionError
+<p>Now imagine I had a million files exactly like that, but different content in the author field and the paragraph. It seems super wasteful, even if I copy and paste all of the structure. Let's say I want to make a change to the menu (add another post to the Posts sub menu, for instance); I'd have to change the menu on every single file. Likewise, all of that content would exist as a million files on my server. Really a gross kind of site to both build and maintain. However, static sites are making a comeback as templating gets more powerful. </p>
+<p>A template allows us to create a single static html file (or "template") that has areas that are populated by dynamic content. For instance, in my million post blog, I could simply create a template that has a variable space for the author, title, and post. Then I have a single html file with variables that get populated by text by the server as it prepares to send a response to the client browser. A template using Jinja, which is what Flask uses by default, of the million post blog would look like this:</p>
+<pre><code class="html">&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Blog Post {{ title }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;nav&gt;
+   &lt;ul&gt;
+      &lt;li&gt;Home&lt;/li&gt;
+      &lt;li&gt;Author&lt;/li&gt;
+      &lt;li&gt;
+         Posts
+         &lt;ul&gt;
+            {% for t in post_titles %}
+            &lt;li&gt;{{ t }}&lt;/li&gt;
+            {% endfor %}
+         &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;Contact&lt;/li&gt;
+   &lt;/ul&gt;
+&lt;/nav&gt;
+&lt;h1&gt;Post {{ title }}&lt;/h1&gt;
+&lt;h2&gt;{{ author }}&lt;/h2&gt;
+&lt;p&gt;{{ body_content }}&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 
-<p>We are getting the error that we are expecting! However, we want to move over to the unittest framework to make our test a little bit more robust. After all, we'll be building an entire testing suite for our application: every operation we want should be tested. This will be very similar to the test in Percival's book, but before that, take a moment to consider the unittest library.</p>
-<h3 id="unittest">unittest</h3>
-<p>The <a href="https://docs.python.org/3/library/unittest.html">unittest library</a> is a framework for writing unit tests. </p>
-<p>A unit test is an automated test that checks the functionality of one unit of a particular application. For instance, one unit of our webpage is the title that shows up on the browser tab. A unit test will test that that is as it should be. Likewise, it might test a single function of our application. When writing a unit test, we need to provide all of the conditions or dependencies except the one variable that is being tested. So our browser title test needs to just test that the browser title contains particular content. It shouldn't check that the browser starts up or anything that appears on the page or that the URL is correct. </p>
-<p>A functional test is a test that checks a particular functionality of our application. For instance, a functional test might check that we can input a new item into a list and when we do so the item gets added to the database. Unlike a unit test that might have distinct tests for user input and writing to the database, the functional test tries to see that the components work together properly. </p>
-<p>Another way to think of this: unit tests check a discrete section of code. Functional tests simulate user experience. </p>
-<p>So, now lets update our functional_tests.py file. You'll notice that this is a functional test because it tests a component of our application as a user would encounter it. We'll write unittests later. </p>
-<pre><code class="python">from selenium import webdriver
-import unittest 
-
-class NewVisitorTest(unittest.TestCase):
-
-   def setUp(self):
-      self.browser = webdriver.Firefox()
-
-   def tearDown(self):
-      self.browser.quit()
-
-   def test_can_start_a_list_and_retrieve_it_later(self):
-      # Call homepage
-      self.browser.get('http://127.0.0.1:5000')
-
-      # Old way: 
-      # assert 'To-Do' in browser.title
-
-      # Using unittest methods
-      self.assertIn('To-Do', self.browser.title)
-
-      self.fail('Finish writing the test!')
-
-      # She is invited to enter a to-do item straight away
-
-      # She types &quot;Buy peacock feathers&quot; into a text box (Edith's hobby
-      # is tying fly-fishing lures)
-
-      # When she hits enter, the page updates, and now the page lists
-      # &quot;1: Buy peacock feathers&quot; as an item in a to-do list
-
-      # There is still a text box inviting her to add another item. She
-      # enters &quot;Use peacock feathers to make a fly&quot; (Edith is very methodical)
-
-      # The page updates again, and now shows both items on her list
-
-      # Edith wonders whether the site will remember her list. Then she sees
-      # that the site has generated a unique URL for her -- there is some
-      # explanatory text to that effect.
-
-      # She visits that URL - her to-do list is still there.
-
-      # Satisfied, she goes back to sleep
-
-if __name__ in '__main__':
-   unittest.main(warnings='ignore')
-</code></pre>
-
-<p>Once again, we want to test it. If you stopped your Flask server, launch it again. Then let's run our functional tests and see the results:</p>
-<pre><code>(env) $ python functional_tests.py
-F
-======================================================================
-FAIL: test_can_start_a_list_and_retrieve_it_later (__main__.NewVisitorTest)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File &quot;functional_tests.py&quot;, line 20, in test_can_start_a_list_and_retrieve_it_later
-    self.assertIn('To-Do', self.browser.title)
-AssertionError: 'To-Do' not found in ''
-
-----------------------------------------------------------------------
-Ran 1 test in 37.913s
-
-FAILED (failures=1)
-</code></pre>
-
-<p>Woo! Our tests are failing as they should be. Notice, we haven't added anything to our app in this chapter, and that's intentional. We now have a test that will pass once our app is returning a page that has the correct title and that will be our next step. For now, it would be a good moment to commit your project and push it to github. </p></div>
+<p>You can see above, title is now a dynamic value that will be populated when the request is made. Likewise, instead of a menu with a huge list of posts, I have a for loop which will create linkes for posts from some list (post_titles) that is passed to the template. The author is also a variable that is passed to the template, and so is the body_content. I now have a single html file (you'll learn that Jinja templates can also extend each other, so you might have one base.html file, then a few templates that extend the base template for different types of pages) that can hold any blog post content. A function in my flask app (probably that takes an input parameter) will populate that template with the relevant data depending on the specific input parameter. So, if I wanted to request post 200, the browser might send a request to the url <code>https://127.0.0.1/blog/200</code>. The Flask app listening at 127.0.0.1 would look for a route blog with the parameter 200. Ideally, there will be a method call that occurs at that route. The method would probably pull the content for post 200 out of the database and fill it into the template that it renders. What database, what template, and how that data all gets massaged together will depend on my specific design, but the basic operation will be the same.</p>
+<p>There's not much more to it. In Flask, templates are pretty easy. In general, "programming" kinds of operations (like loops and conditionals) are surrounded by {% %}, the most difficult character sequence to type ever. Then variables are surrounded by double moustaches {{ }}. You pass those variables to the template with the render_template method.</p>
+<h2 id="other-frontend-options">Other Frontend Options</h2>
+<p>It is possible to send data back as JSON or some other data structure as well. It is not uncommon for people to use Flask as the back end of the website. It manages data and states. Then you might use a Javascript framework like Vue or React for the front end. These frameworks often provide a better, easier to build and maintain front end user interface. However, this is beyond the scope of what we are doing here. It's just worth knowing these exist.</p></div>
             </div>
         </div>
 

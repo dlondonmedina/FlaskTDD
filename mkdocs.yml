@@ -4,15 +4,17 @@ site_dir: 'docs'
 nav: 
   - Home: index.md
   - One:
-    - Intro to TDD: ch1.md
-    - Types of Tests: ch2.md
+    - 1. Intro to TDD: ch1.md
+    - 2. Types of Tests: ch2.md
   - Two: 
-    - Intro to Objects: ch3.md
-    - TDD with Objects: ch4.md
+    - 3. Intro to Objects: ch3.md
+    - 4. TDD with Objects: ch4.md
   - Three: 
-    - The Internet: ch5.md
-    - TDD Online: ch6.md
+    - 5. The Internet: ch5.md
+    - 6. TDD Online: ch6.md
   - Four:
-    - Intro to Flask: ch7.md
-    - Smallest App: ch8.md
-  
+    - 7. Intro to Flask: ch7.md
+    - 8. Smallest App: ch8.md
+  - Five:
+    - 9. Intro to HTML: ch9.md
+    - 10. Intro to Templates: ch10.md
