@@ -18,3 +18,7 @@ nav:
   - Five:
     - 9. Intro to HTML: ch9.md
     - 10. Intro to Templates: ch10.md
+  - Six:
+    - 11. Decorators: ch11.md
+    - 12. Templates the TDD Way: ch12.md
+  

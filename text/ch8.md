@@ -276,6 +276,7 @@ I'm going to start by writing the tests that would simulate a user making a requ
 Now I need to consider what I'm going to test. The easiest way would be to see if the application returns a particular text value. I also need to know what URL the test server uses to host Flask. It happens to be http://127.0.0.1:5000. With that in mind, let's set up our test.
 
 _blog_web_tests.py_
+
 ```python
 import unittest
 import requests

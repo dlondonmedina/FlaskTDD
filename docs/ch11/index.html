@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Your Flask App - Test-Driven Development with Flask</title>
+        <title>11. Decorators - Test-Driven Development with Flask</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -101,12 +101,12 @@
 </li>
                                 </ul>
                             </li>
-                            <li class="dropdown">
+                            <li class="dropdown active">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Six <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="../ch11/" class="dropdown-item">11. Decorators</a>
+    <a href="./" class="dropdown-item active">11. Decorators</a>
 </li>
                                     
 <li>
@@ -122,6 +122,16 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../ch10/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../ch12/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
                     </ul>
                 </div>
             </div>
@@ -140,8 +150,16 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#your-flask-app" class="nav-link">Your Flask App</a>
+            <li class="nav-item" data-level="1"><a href="#back-to-flask" class="nav-link">Back to Flask</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#one-more-background-lesson" class="nav-link">One More Background Lesson</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#conclusion" class="nav-link">Conclusion</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -149,10 +167,168 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="your-flask-app">Your Flask App</h1>
-<p>We will be building the Superlists app in Flask. The approach and the code will be a bit different, but our tests will be pretty close to the Django Superlists apps discussed in <a href="https://www.obeythetestinggoat.com/book">Percival's book</a>. </p>
-<p>Since Flask is a microframework, we don't have the same CLI to build a new application or feature within our app. In Django, when you run the command <code>$ python manage.py startapp lists</code> Django creates a brand new app with a bunch of files associated with that application. It includes an admin interface, all of your database models, and your views. This makes building with Django relatively easy and quick, but on the other hand, if you are, say, building an app that doesn't require a database or admin interface or users, then Django gives you a lot of extra stuff that you don't need, still needs to be maintained, and might contain vulnerabilities that will be patched in the future. </p>
-<p>How do we start our app with Flask? </p></div>
+<h1 id="back-to-flask">Back to Flask</h1>
+<h2 id="one-more-background-lesson">One More Background Lesson</h2>
+<p>If you recall, our <code>__init__.py</code> file looked like this:</p>
+<p><em>app/__init__.py</em></p>
+<pre><code class="python">from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello_flask():
+   return 'Hello Flask!'
+</code></pre>
+
+<p>You may have noticed the line <code>@app.route('/')</code> and wondered what was going on. What is happening is we are using what is called a decorator in Python. The @ symbol is a decorator. Here I want to take a moment to go into detail about how decorators work.</p>
+<h3 id="decorators">Decorators</h3>
+<p>If you recall, functions can take parameters. Hopefully this is pretty clear to you at this point, but if not, it's worth a review. </p>
+<pre><code class="python">def word_frequency(word_list, text):
+   out = {}
+   for word in word_list:
+      if word not in out.keys():
+         out[word] = text.count(word)
+
+   return out
+</code></pre>
+
+<p>This function takes two parameters: a word list and a text. I'd assume the first is a list of words and the second is a string. The point is these are flexible and they are the way that we pass data into a function. It's pretty obvious that primitive datatypes and also data structures can be passed into a function as a parameter, but that's not all. Functions can also take objects and functions as parameters. Here is an example of a function taking a function as a parameter:</p>
+<pre><code class="python">def say_hello(func): #1
+   print(&quot;Hello!&quot;)
+   func() #2
+   print(&quot;Goodbye!&quot;)
+
+def sing_a_song(): #3
+   print(&quot;la la la la la!&quot;)  
+
+def greetings(): #4
+   print(&quot;It certainly is good to meet you!&quot;)
+
+# Driver
+if __name__ == &quot;__main__&quot;:
+   say_hello(sing_a_song) #5
+   say_hello(greetings) #6
+</code></pre>
+
+<ol>
+<li>
+<p>At #1, we are defining a function called say_hello that takes one parameter <code>func</code>, which we can assume is a function. </p>
+</li>
+<li>
+<p>At #2, the function that is passed in as a parameter is called or is executed.</p>
+</li>
+<li>
+<p>At #3, we define a simple function called sing_a_song that prints a string to the screen.</p>
+</li>
+<li>
+<p>At #4, we define a second simple function called greetings, which has the same functionality as sing_a_song, except it prints a different string.</p>
+</li>
+<li>
+<p>At #5, in our driver we call the function say_hello and pass it sing_a_song to its parameter.</p>
+</li>
+<li>
+<p>At #6, in our driver we call the function say_hello and pass it greetings to its parameter.</p>
+</li>
+</ol>
+<p>You'll notice that like any parameter, a function parameter can receive any function. If you want, take a moment to type this into a file and run it. Here is the output.</p>
+<pre><code>~/$ python example.py
+Hello!
+la la la la la!
+Goodbye!
+Hello!
+It certainly is good to meet you!
+Goodbye!
+</code></pre>
+
+<p>Just as we can pass a function to another function as a parameter, we can also have a function return another function or sub-function.</p>
+<p><em>my_script.py</em></p>
+<pre><code class="python">def wordsearch(print=False):
+   def search(word, text):
+      return text.count(word)
+
+   def printer(word, text):
+      print(text.count(word))
+
+   if print:
+      return printer 
+   return search 
+
+if __name__ == &quot;__main__&quot;:
+   text = &quot;This is a string with lots of strings. Cat's like string.&quot;
+   word = &quot;string&quot;
+   func = wordsearch()
+   func2 = wordsearch(True)
+
+   x = func(text, word)
+   print(&quot;The result of function 1 plus 1 = {}&quot;.format(x + 1))
+   func2(text, word)
+</code></pre>
+
+<p>The output of the above script:</p>
+<pre><code>~$ python3 my_script.py
+The result of function 1 plus 1 = 4
+3
+</code></pre>
+
+<p>Notice, what I'm doing is I have a function that takes a parameter of True or False. If it's True, then the function returns the wrapped function that prints the results of the wordsearch directly. If the parameter is false, it returns a function that returns the results of the wordsearch to the interpreter. The next step is you can create a function that takes a function as a parameter, wraps that function with some additional functionality and then returns that newly wrapped function. This is a great way to add functionality to a function without creating a brand new function. Let's take a look:</p>
+<p><em>my_script.py</em></p>
+<pre><code class="python">def word_search(text, word):
+   &quot;&quot;&quot;This function returns True if the word is in the text, 
+   or False otherwise&quot;&quot;&quot;
+   return word in text 
+
+def lower_case_word_search(func):
+   def wrapper(text, word):
+      text = text.lower()
+      word = word.lower()
+      return func(text, word)
+
+   return wrapper
+
+if __name__ == &quot;__main__&quot;:
+   text = &quot;This is a string with lots of Strings. Cat's like String.&quot;
+   word = &quot;string&quot;
+   print(word_search(text, word))
+   revised_search = lower_case_word_search(word_search())
+   print(revised_search(text, word))
+</code></pre>
+
+<p>Again, the output:</p>
+<pre><code>~$ python3 my_script.py 
+1
+3
+</code></pre>
+
+<p>If you understand this notion of passing functions as parameters, returning functions, and wrapping functions with additional functionality by passing them through functions, then decorators are pretty easy. A decorator uses the @ symbol and references a function name. Take the code in the previous example. Let's say I wanted to add the lower case functionality to my word_search for the entire scope of my program. We can use a decorator to do so.</p>
+<p><em>decorator.py</em></p>
+<pre><code class="python">def lower_case_word_search(func):
+   def wrapper(text, word):
+      text = text.lower()
+      word = word.lower()
+      return func(text, word)
+
+   return wrapper
+
+@lower_case_word_search
+def word_search(text, word):
+   &quot;&quot;&quot;This function returns True if the word is in the text, 
+   or False otherwise&quot;&quot;&quot;
+   return word in text 
+</code></pre>
+
+<p>The @lower_case_word_search wraps the following function <code>word_search()</code> in <code>lower_case_word_search()</code>. So, this example is the same as writing <code>word_search = lower_case_word_search(word_search())</code>. From here on, any time we call <code>word_search()</code> it will be wrapped in the function that makes the strings lowercase first. If this doesn't make sense, read up on decorators, and feel free to chat with the instructor. But let's get back to routes.py</p>
+<p><em>app/routes.py</em></p>
+<pre><code class="python">from app import app
+
+@app.route('/')
+@app.route('/index')
+def index():
+   return &quot;Hello Flask!&quot;
+</code></pre>
+
+<p>We're on the two lines that begin with the @ symbol. Each line references the route method that is part of the Flask class that we instantiated in <code>__init__.py</code>. The parameter that's being passed to route() is a URL rule that defines a URL endpoint that we add some functionality to. In other words, if our app is hosted at <code>www.example.com</code> then anytime our server receives a request to <code>www.example.com</code> or <code>www.example.com/index</code> the index function will be called, which returns "Hello Flask!" The rest of route() that's wrapping the index() function defined here, then takes that string (Hello Flask!), and builds an HTML page and sends it back to the client that made the request.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>I wanted to add all of this detail to the instructions because I want you to think about the Python concepts that you can learn from building a Flask app. You'll notice that we've talked about a class (Flask), we've talked about instantiating it. We've talked about importing, and we've learned about decorators and the way that we use decorators in Flask to add our own functionality (index()) to functionality that's built into the framework (app.route()).</p></div>
             </div>
         </div>
 

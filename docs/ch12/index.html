@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>12. Templates the TDD Way - Test-Driven Development with Flask</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Test-Driven Development with Flask</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">One <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch1/" class="dropdown-item">1. Intro to TDD</a>
+</li>
+                                    
+<li>
+    <a href="../ch2/" class="dropdown-item">2. Types of Tests</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Two <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch3/" class="dropdown-item">3. Intro to Objects</a>
+</li>
+                                    
+<li>
+    <a href="../ch4/" class="dropdown-item">4. TDD with Objects</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Three <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch5/" class="dropdown-item">5. The Internet</a>
+</li>
+                                    
+<li>
+    <a href="../ch6/" class="dropdown-item">6. TDD Online</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Four <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch7/" class="dropdown-item">7. Intro to Flask</a>
+</li>
+                                    
+<li>
+    <a href="../ch8/" class="dropdown-item">8. Smallest App</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Five <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch9/" class="dropdown-item">9. Intro to HTML</a>
+</li>
+                                    
+<li>
+    <a href="../ch10/" class="dropdown-item">10. Intro to Templates</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Six <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch11/" class="dropdown-item">11. Decorators</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">12. Templates the TDD Way</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../ch11/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#adding-some-templates" class="nav-link">Adding some Templates</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#start-a-template" class="nav-link">Start a Template</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#add-a-menu" class="nav-link">Add a menu</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="adding-some-templates">Adding some Templates</h1>
+<p>Generally, when we do test-driven development, we are testing the functionality of our code rather than the value of constants that we might be using. Constants are values that are set or perhaps hard coded and do not change throughout the lifecycle of the application. For instance, if I have a user class and that user class generates a constant ID when it is instantiated, I won't check that the value of that ID is a particular value. On the other hand, if I have a function that retrieves the user ID, then I would test that that function does in fact return a user ID (even a particular value). The key is, I'm not testing the value itself, but rather the function's ability to return it. This will become a bit more clear as we go on. </p>
+<p>When we build Flask apps, generally we treat our templates as constant. They have variables, certainly, but we wouldn't want to write unittests that check for certain that the layout is a particular way. There are frameworks for testing user interfaces, but we're not going to get into that here. That being said, we do want to test that our Flask functions are working properly. So we're going to pick up our application again and start expanding it. At this point your file structure should look something like this:</p>
+<pre><code>blog/
+   app/
+      __init__.py
+   env/
+   tests/
+      blog_tests.py
+      blog_web_tests.py
+   requirements.txt
+   app.py
+</code></pre>
+
+<p>And the files that we have coded will look like this:</p>
+<p><em>app.py</em></p>
+<pre><code class="python">from app import app
+</code></pre>
+
+<p><em>__init__.py</em></p>
+<pre><code class="python">from flask import Flask
+
+app = Flask(__name__)
+
+@app.rout('/')
+def hello_flask():
+   return 'Hello Flask!'
+</code></pre>
+
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">import unittest
+from app import app
+
+class TestBlog(unittest.TestCase):
+
+   def setUp(self):
+      self.client = app.test_client()
+
+   def test_hello_flask(self):
+      resp = self.client.get('/')
+      self.assertEqual(b'Hello Flask!', resp.data)
+</code></pre>
+
+<p>_blog_web_tests.py</p>
+<pre><code class="python">import unittest
+import requests
+
+class TestBlog(unittest.TestCase):
+
+   def setUp(self):
+      self.url = 'http://127.0.0.1:5000/'
+
+   def test_hello_flask(self):
+      resp = requests.get(self.url)
+      self.assertIn('Hello Flask!', resp.text)
+</code></pre>
+
+<p>My goal for this coding session is to create functionality in my app that returns a landing page for my website. </p>
+<ol>
+<li>
+<p>The landing page needs to have a title. </p>
+</li>
+<li>
+<p>It should also have a menu structure. </p>
+</li>
+<li>
+<p>Maybe I also want to have a page heading that greets the user in a dynamic manner (meaning the greeting should change based on who is accessing the site), and a short blurb describing my website. </p>
+</li>
+<li>
+<p>I want to be able to use the test_client() to test my site, so I'll be abandoning the blog_web_tests.py file for a bit. </p>
+</li>
+<li>
+<p>I'll be refactoring the code so that my Flask function is no longer called hello_flask.</p>
+</li>
+<li>
+<p>Finally, I want to create a second route with a second template that will show a single blog post. For now, I'll be hard coding a bit of the data, but next time we'll use a form and database. </p>
+</li>
+</ol>
+<h2 id="start-a-template">Start a Template</h2>
+<p>We're going to obey the testing goat and start by writing up a new test to test my landing page. I'm going to start pretty simple and test that the HTML is properly formed and that the title is correct. Since I'm refactoring, I'm going to remove the test that I'd built before and replace it.</p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">import unittest
+from app import app
+
+
+class TestBlog(unittest.TestCase):
+
+    def setUp(self):
+        self.client = app.test_client()
+
+    def test_home_page_returns(self):
+        resp = self.client.get('/')
+        self.assertEqual(200, resp.status_code)
+
+    def test_home_page_returns_correct_html(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        self.assertTrue(html.startswith('&lt;!DOCTYPE html&gt;'))
+        self.assertIn('&lt;title&gt;Fancy-Pants Blog&lt;/title&gt;', html)
+        self.assertTrue(html.endswith('&lt;/html&gt;'))
+</code></pre>
+
+<ol>
+<li>
+<p><code>test_home_page_returns()</code> The first test is a basic text to see if my route is working properly and returning the success status code. The bit of logic that is testing that is here: <code>self.assertEqual(200, resp.status_code)</code> </p>
+</li>
+<li>
+<p><code>test_home_page_returns_correct_html</code> Now that I know that my route is returning the correct status code, I want to check that it's returning a properly formed html document. What this will test, since I know how my templates will work, is that the base.html and index.html are being assembled and rendered properly. This means that the page starts with <code>&lt;!DOCTYPE html&gt;</code> and ends with <code>&lt;/html&gt;</code>.</p>
+</li>
+<li>
+<p><code>self.assertIn('&lt;title&gt;Fancy-Pants Blog&lt;/title&gt;`, html)</code> This second part of the test is useful because it is checking that the title content is being loaded by the Flask index() method.</p>
+</li>
+</ol>
+<p>I run my tests next. Once again, we go to our trusty bash terminal, navigate to our project directory. Then activate our Virtual Environment and run our tests. It's worth noting that I run the tests from the blog directory (as opposed to changing into the tests directory). This helps make sure my app is found in the test.  </p>
+<pre><code>(env) ~/Projects/blog$ python -m unittest tests/blog_tests.py
+.F
+======================================================================
+FAIL: test_home_page_returns_correct_html (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;Projects/blog/tests/blog_tests.py&quot;, line 17, in test_home_page_returns_correct_html
+    self.assertTrue(html.startswith('&lt;!DOCTYPE html&gt;'))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+FAILED (failures=1)
+
+</code></pre>
+
+<p>We see that the first passes, which is to be expected because we already have an app that's responding. The second test fails, also as expected, because we don't have a template constructed yet and our route isn't returning any html at all. That's test driven development for you. We start with failing tests. </p>
+<p>The first thing I want to do to get my tests to pass is to create some new files and folders. I'll do this from the terminal, but you can create the files however you want. First, I need to make a templates directory inside of my app directory. This templates directory needs to be a sibling of wherever my app is located. If I had just written the app all in one file, I would put templates in the blog directory. When I tell Flask to render a template, it looks for them in a directory called <code>templates</code> that is a sibling of our app (so, __init__.py). </p>
+<pre><code>(env) ~/Projects/blog$ ls
+app  app.py  env  __pycache__  requirements.txt  tests
+(env) ~/Projects/blog$ mkdir app/templates
+(env) ~/Projects/blog$ touch app/templates/base.html app/templates/index.html
+</code></pre>
+
+<p>Second, I create two files called <code>base.html</code> and <code>index.html</code>. The base template is the masthead that will contain my header, footer, and all other content that will be repeated on every single page of the site. The index template will extend the base template and add specific content for the index page. The contents of the files are as follows:</p>
+<p><em>base.html</em></p>
+<pre><code class="html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+   &lt;meta charset=&quot;UTF-8&quot;&gt;
+   &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+   &lt;title&gt;{{ title }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+   {% block content %} {% endblock %}
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Notice that the <code>base.html</code> file contains the head and a variable for the title. We'll be filling that based on the page. The <code>&lt;title&gt;</code> element contains the text that is shown on the browser tab. The file also contains a block element for the content. In the future, we'll probably wrap that in a div that styles it, but for now, it's just an empty block of content. Next we need to write our <code>index.html</code> file.</p>
+<p><em>index.html</em></p>
+<pre><code class="html">{% extends 'base.html' %}
+{% block content %}
+&lt;h1&gt;Greetings!&lt;/h1&gt;
+{% endblock %}
+</code></pre>
+
+<p>Lovely, whatever is between the block called <em>content</em> and the end of that block will be populated into <code>base.html</code> where the corresponding tags are. You can do the same with menus or footers. </p>
+<p>Finally, we need to update our Flask app itself to render and return a template rather than a string. Fortunately, Flask has a method called render_template built in that allows us to render a particular template, which means to assemble the data and the template(s) into a single html document that will be sent over the network to the client.</p>
+<p><em>__init__.py</em></p>
+<pre><code class="python">from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/')
+@app.route('/index')
+def index():
+   title = 'Fancy-Pants Blog'
+   return render_template('index.html', title=title)
+</code></pre>
+
+<p>All that's left on this part is to run our tests. </p>
+<pre><code>(env) Projects/blog$ python -m unittest tests/blog_tests.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.007s
+
+OK
+</code></pre>
+
+<h2 id="add-a-menu">Add a menu</h2>
+<p>Menus for websites are usually unordered lists with links attached to them. Ordinarily and unordered list looks like this:
+<ul>
+   <li>Item One</li>
+   <li>Item Two</li>
+   <li>Item Three</li>
+</ul></p>
+<p>or </p>
+<pre><code class="html">&lt;ul&gt;
+   &lt;li&gt;Item One&lt;/li&gt;
+   &lt;li&gt;Item Two&lt;/li&gt;
+   &lt;li&gt;Item Three&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<p>but a menu list is styled to make it look like a menu:
+<ul id="sample-menu">
+   <li><a href="#">Item One</a></li>
+   <li><a href="#">Item Two</a></li>
+   <li><a href="#">Item Three</a></li>
+</ul>
+<br></p>
+<style>
+#sample-menu {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333333;
+}
+
+#sample-menu  li {
+  float: left;
+}
+
+#sample-menu li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 16px;
+  text-decoration: none;
+}
+
+#sample-menu li a:hover {
+  background-color: #111111;
+}
+</style>
+
+<p>Here are the style rules that turn the same html list into a menu.</p>
+<pre><code class="css">#sample-menu {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333333;
+}
+
+#sample-menu  li {
+  float: left;
+}
+
+#sample-menu li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 16px;
+  text-decoration: none;
+}
+
+#sample-menu li a:hover {
+  background-color: #111111;
+}
+</code></pre>
+
+<p>For now, however, we don't need to worry about making a nicely styled menu. Let's just make a list that will become our navigation bar menu later on. I also want my menu to be a bit dynamic just because I want to be able to adjust how many menu links I have from my Flask app. So I'm going to write my test first.</p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">from bs4 import BeautifulSoup
+import unittest
+from app import app
+
+
+class TestBlog(unittest.TestCase):
+
+    def setUp(self):
+        self.client = app.test_client()
+
+    def test_home_page_returns(self):
+        resp = self.client.get('/')
+        self.assertEqual(200, resp.status_code)
+
+    def test_home_page_returns_correct_html(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        self.assertTrue(html.startswith('&lt;!DOCTYPE html&gt;'))
+        self.assertIn('&lt;title&gt;Fancy-Pants Blog&lt;/title&gt;', html)
+        self.assertTrue(html.endswith('&lt;/html&gt;'))
+
+    def test_menu(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        soup = BeautifulSoup(html, 'html.parser')
+        menu = [link.get_text() for link in soup.select('.menu-item')]
+        self.assertListEqual(['About', 'CV', 'Blog'], menu)
+</code></pre>
+
+<ol>
+<li>
+<p><code>from bs4 import BeautifulSoup</code> It's much nicer to deal with html if I use a parser. Beautiful Soup is an excellent parser for html (and xml). I'm using that to extract the text from the menu links. You'll see I'm then able to assert two lists equal to each other without all the extra html tags. </p>
+</li>
+<li>
+<p><code>test_menu()</code> You'll see that the test is a little bit longer and requires a bit of extra setup. First I get the html response and decode it. Then I parse it with Beautiful Soup. This creates a soup object that I can search efficiently.</p>
+</li>
+<li>
+<p><code>menu = [link.get_text() for link in soup.select('.menu-item')]</code> is a bit of Python magic. I'm using a list generator, and what this says is iterate through all of the elements in the html that have the class 'menu-item'. For each of those, get the text (whatever content is inside of the tags), and add it to a list, which is then stored to a variable called menu.</p>
+</li>
+</ol>
+<p>Of course, this fails, gloriously:</p>
+<pre><code>(env) ~/Projects/blog$ python -m unittest tests/blog_tests.py
+..F
+======================================================================
+FAIL: test_menu_text (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;/home/user1/Projects/blog/tests/blog_tests.py&quot;, line 27, in test_menu_text
+    self.assertListEqual(['About', 'CV', 'Blog'], menu)
+AssertionError: Lists differ: ['About', 'CV', 'Blog'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'About'
+
+- ['About', 'CV', 'Blog']
++ []
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.009s
+
+FAILED (failures=1)
+</code></pre>
+
+<p>Next, I want to write a test that checks to see if each of the menu items is a link to a particular address. Menu addresses usually use relative paths so <code>https://example.com/blog</code> might have the address <code>&lt;a href='blog'&gt;</code>. I want to check these also because my function needs to build this menu dynamically. So I'll create the test for that now, too.</p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">from bs4 import BeautifulSoup
+import unittest
+from app import app
+
+
+class TestBlog(unittest.TestCase):
+
+    def setUp(self):
+        self.client = app.test_client()
+
+    def test_home_page_returns(self):
+        resp = self.client.get('/')
+        self.assertEqual(200, resp.status_code)
+
+    def test_home_page_returns_correct_html(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        self.assertTrue(html.startswith('&lt;!DOCTYPE html&gt;'))
+        self.assertIn('&lt;title&gt;Fancy-Pants Blog&lt;/title&gt;', html)
+        self.assertTrue(html.endswith('&lt;/html&gt;'))
+
+    def test_menu_text(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        soup = BeautifulSoup(html, 'html.parser')
+        menu = [link.get_text() for link in soup.select('.menu-item')]
+        self.assertListEqual(['About', 'CV', 'Blog'], menu)
+
+    def test_menu_links(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        soup = BeautifulSoup(html, 'html.parser')
+        menu = [link.get('href') for link in soup.select('.menu-item a')]
+        self.assertListEqual(['about', 'cv', 'blog'], menu)
+</code></pre>
+
+<p>The only difference in the test_menu_links and test_menu_test is that in the former I get the <code>&lt;a&gt;</code> element and extract the href, and the latter I extract the text. The results of the tests are about the same:</p>
+<pre><code>(env) ~/Projects/blog$ python -m unittest tests/blog_tests.py
+..FF
+======================================================================
+FAIL: test_menu_links (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;blog/tests/blog_tests.py&quot;, line 34, in test_menu_links
+    self.assertListEqual(['about', 'cv', 'blog'], menu)
+AssertionError: Lists differ: ['about', 'cv', 'blog'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'about'
+
+- ['about', 'cv', 'blog']
++ []
+
+======================================================================
+FAIL: test_menu_text (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;blog/tests/blog_tests.py&quot;, line 27, in test_menu_text
+    self.assertListEqual(['About', 'CV', 'Blog'], menu)
+AssertionError: Lists differ: ['About', 'CV', 'Blog'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'About'
+
+- ['About', 'CV', 'Blog']
++ []
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.125s
+
+FAILED (failures=2)
+</code></pre>
+
+<p>We're failing in the right way so now I need to add the links and the text for a menu system. I could hardcode these into my base.html file, but I'd rather make those dynamic. Perhaps I want to make this generic so I can create different menus if I want to reuse this code in the future. Perhaps I want to allow my menu to adjust dynamically, or in th future, I might create an administrator console that allows the user to adjust the menu without altering the code. So, I'm going to first adjust my template:</p>
+<p><em>base.html</em></p>
+<pre><code class="html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+   &lt;meta charset=&quot;UTF-8&quot;&gt;
+   &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+   &lt;title&gt;{{ data.title }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+   &lt;ul&gt;
+      {% for item in data.menu %}
+      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;{{ item.link }}&quot;&gt;{{ item.text }}&lt;/a&gt;&lt;/li&gt;
+      {% endfor %}
+   &lt;/ul&gt;
+   {% block content %} {% endblock %}
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<ol>
+<li>
+<p>First you'll notice that I changed the variable for the title into data.title. This means that I'll be putting all of my data into a single object before shipping it to my templates, so data is going to be a dictionary with "title" as one of the keys.</p>
+</li>
+<li>
+<p>You'll also notice that I'm accessing the "menu" key of the data dictionary. I know this will be a list of menu items, so I use a for loop to iterate through those.</p>
+</li>
+<li>
+<p>For each menu item, I add the link and the text values.</p>
+</li>
+</ol>
+<p>Finally, I need to modify my index() method from my app so that it passes the appropriate data to the template. As you will see, I've created a data dictionary that conforms to what my template is expecting. </p>
+<p><em>__init__.py</em></p>
+<pre><code class="python">from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/')
+@app.route('/index')
+def index():
+   data = {
+      'title': 'Fancy-Pants Blog',
+      'menu': [
+         {
+            'link': 'about',
+            'text': 'About'
+         },
+         {
+            'link' : 'cv',
+            'text': 'CV'
+         }, 
+         {
+            'link' : 'blog',
+            'text' : 'Blog'
+         }
+      ]
+   }
+   return render_template('index.html', data=data)
+</code></pre>
+
+<p>It's not a massive change except I created the data dictionary instead of a title variable. Also, I'm passing all the data to the template as one parameter. I could technically pass a bunch of keyword/argument pairs to the render_template function but it's easier for me to keep track of if I bundle all the data together. </p>
+<p>Now my tests pass:</p>
+<pre><code>(env) ~/Projects/blog$ python -m unittest tests/blog_tests.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.011s
+
+OK
+</code></pre>
+
+<p>Finally, I want to set up so that I have a heading on my landing page that says, either "Hello Stranger" or "Hello some name" depending on whether a name has been added to the url. So <code>https://localhost/dylan</code> should say "Hello dylan." Let's write our unit test first.</p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">from bs4 import BeautifulSoup
+import unittest
+from app import app
+
+
+class TestBlog(unittest.TestCase):
+
+    def setUp(self):
+        self.client = app.test_client()
+
+    def test_home_page_returns(self):
+        resp = self.client.get('/')
+        self.assertEqual(200, resp.status_code)
+
+    def test_home_page_returns_correct_html(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        self.assertTrue(html.startswith('&lt;!DOCTYPE html&gt;'))
+        self.assertIn('&lt;title&gt;Fancy-Pants Blog&lt;/title&gt;', html)
+        self.assertTrue(html.endswith('&lt;/html&gt;'))
+
+    def test_menu_text(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        soup = BeautifulSoup(html, 'html.parser')
+        menu = [link.get_text() for link in soup.select('.menu-item')]
+        self.assertListEqual(['About', 'CV', 'Blog'], menu)
+
+    def test_menu_links(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        soup = BeautifulSoup(html, 'html.parser')
+        menu = [link.get('href') for link in soup.select('.menu-item a')]
+        self.assertListEqual(['about', 'cv', 'blog'], menu)
+
+    def test_heading_no_name(self):
+        resp = self.client.get('/')
+        html = resp.data.decode('utf-8')
+        soup = BeautifulSoup(html, 'html.parser')
+        head = soup.h1.get_text()
+        self.assertEqual('Hello Stranger', head)
+
+    def test_heading_name(self):
+        resp = self.client.get('/Dylan')
+        html = resp.data.decode('utf-8')
+        soup = BeautifulSoup(html, 'html.parser')
+        head = soup.h1.get_text()
+        self.assertEqual('Hello Dylan', head)
+
+</code></pre>
+
+<p>You'll notice I'm getting the text of the <code>&lt;h1&gt;</code> element. Now I know that my template will need that element, and I know I want to add it only to the index.html page. I also know that that tag will require some flow control. </p>
+<p><em>index.html</em></p>
+<pre><code class="html">{% extends 'base.html' %}
+{% block content %}
+{% if name %}
+&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;
+{% else %}
+&lt;h1&gt;Hello Stranger&lt;/h1&gt;
+{% endif %}
+{% endblock %}
+</code></pre>
+
+<p>Finally, we need to adjust our index() method a bit to take the parameter off of the URL. There is much you could learn about URL encoding, but we're not going to much into it here. </p>
+<p><em>__init__.py</em></p>
+<pre><code class="python">from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/')
+@app.route('/&lt;name&gt;')
+def index(name = None):
+   data = {
+      'title': 'Fancy-Pants Blog',
+      'menu': [
+         {
+            'link': 'about',
+            'text': 'About'
+         },
+         {
+            'link' : 'cv',
+            'text': 'CV'
+         }, 
+         {
+            'link' : 'blog',
+            'text' : 'Blog'
+         }
+      ]
+   }
+   return render_template('index.html', data=data, name=name)
+</code></pre>
+
+<p>Here and in the template above, I'm adding an additional keyword value pair for the parameters to render_template. I could also bundle the title into the data object, but adding an extra parameter maybe makes it easier to see. You'll notice that I don't need to specify which template gets which piece of data. As long as I'm using good, unique names for each variable, render_template is smart enough to sort all of that out. </p>
+<p>Now run my test and we see:</p>
+<pre><code>(env) ~/Projects/blog$ python -m unittest tests/blog_tests.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.014s
+
+OK
+</code></pre>
+
+<p>Great! My app is working successfully. Hopefully, you have a better sense of how templates work and how we can write unit tests to test our templates. It's worth noting that the content of the templates that I'm testing is that which is generated dynamically by my functions. I'm not testing any constant content that is hardcoded into the html. Next chapter, we're going to learn how to create forms, and then in the following chapter we'll learn how to store data in a database. </p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
