@@ -21,4 +21,5 @@ nav:
   - Six:
     - 11. Decorators: ch11.md
     - 12. Templates the TDD Way: ch12.md
-  
+  - Seven:
+    - 13. Forms the TDD way: ch13.md
