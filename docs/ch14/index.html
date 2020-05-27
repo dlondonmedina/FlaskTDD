@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Databases - Test-Driven Development with Flask</title>
+        <title>14. Databases and Login - Test-Driven Development with Flask</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -114,12 +114,16 @@
 </li>
                                 </ul>
                             </li>
-                            <li class="dropdown">
+                            <li class="dropdown active">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Seven <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     
 <li>
     <a href="../ch13/" class="dropdown-item">13. Forms the TDD way</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">14. Databases and Login</a>
 </li>
                                 </ul>
                             </li>
@@ -131,6 +135,16 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../ch13/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
                     </ul>
                 </div>
             </div>
@@ -187,9 +201,494 @@ Database tables showing ORG, TYPE and CONTACT</p>
 <h2 id="models">Models</h2>
 <p>Flask deals with databases through models. Our models use SQLAlchemy to connect to a SQLite database. It is light weight, the database is just a file stored in your app directory (or elsewhere), but it doesn't take advantage of some of the efficiencies that other database servers provide. You can certainly use other databases, and I'd recommend MariaDB or PostgreSQL for production purposes. Each model represents a single table within our database. It will have all of the fields and field types that the table will have. Instead of writing SQL statements, though, we'll be able to use our models and SQLAlchemy to manage the data. </p>
 <h2 id="setting-up-our-tests">Setting Up our Tests</h2>
-<p>Again, before we start writing any code, we want to set up some tests. There are two major concerns that we need to test. We must test that our database will accept data. We must also test that our forms can add data to our database. For now we're just going to add our create post functionality. I will write the tests first, and then we'll go through the setup required to get the database working and linked to our forms.</p>
+<p>Again, before we start writing any code, we want to set up some tests. There are two major concerns that we need to test. We must test that our database will accept data. We must also test that our forms can add data to our database. I will write the tests first, and then we'll go through the setup required to get the database working and linked to our forms. </p>
+<h3 id="set-up-our-test-suite">Set up our Test Suite</h3>
+<p>Our first step for our test is to modify our test <code>setUp()</code> method and create some helper methods that we'll use in our unit tests throughout. </p>
+<p><strong>NOTE:</strong> I will be showing just part of the files below as they are getting fairly long. Three dots (<code>...</code>) means that some code has not been copied in, but you should not delete it from your code or add the dots if you are following along.</p>
 <p><em>blog_test.py</em></p>
-<pre><code class="python"></code></pre></div>
+<pre><code class="python">import os # 1
+from bs4 import BeautifulSoup
+import unittest
+from app import app, db # 2
+from app.models import Entry
+
+# Global Test database
+TEST_DB = 'test.db' # 3
+
+class TestBlog(unittest.TestCase):
+
+   def setUp(self):
+      app.config['TESTING'] = True
+      app.config['WTF_CSRF_ENABLED'] = False
+      app.config['DEBUG'] = False
+      app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
+         os.path.join(app.config['BASEDIR'], TEST_DB)
+      self.client = app.test_client()
+      db.drop_all()
+      db.create_all()
+      db.add_user('author', 'author@example.com', 
+                  'Author', 'McAuthorson', 'password', 'password')
+      db.add_post('Title', 'Sluggy', 'The body text.')
+      db.add_post('Title2', 'Sluggy', 'The body text.')
+
+   def tearDown(self):
+      db.drop_all() 
+
+   ########################
+   #### Helper Methods ####
+   ########################
+
+   def register(self, username, email, password, confirm):
+      return self.app.post(
+         '/register',
+         data = {
+            'username': username,
+            'email': email,
+            'password': password,
+            'confirm': confirm
+         },
+         follow_redirects=True
+      )
+
+   def login(self, cred, password):
+      return self.app.post(
+         '/login',
+         data = {
+            'cred': cred,
+            'password': password
+         },
+         follow_redirects=True
+      )
+
+   def logout(self):
+      return self.app.get('/logout', follow_redirects = True)
+
+...
+
+</code></pre>
+
+<ol>
+<li>
+<p>We added a new import statement. Importing the os library allows Python to read the path where the database file should be created. This shows up again when we config the <code>SQLALCHEMY_DATABASE_URI</code> SQLAlchemy uses a simple database file rather than a database server. In production, if you are expecting extensive traffic, you might consider using a SQL server (PostgreSQL, MariaDB, etc.).</p>
+</li>
+<li>
+<p>We're not just importing app, but also db from our project. This means we'll need to create that in our __init__.py script. Look for that later on.</p>
+</li>
+<li>
+<p>We are creating a global constant TEST_DB that is the name of the database file we will create in setup. Python doesn't enforce constants like Java or C++, but by naming a variable in all caps, we're indicating that it should be treated as a constant. As such, you will never change the value of TEST_DB in the code.</p>
+</li>
+<li>
+<p>We added a bunch of configuration to our app before we created our test client. These configurations include setting the value of some constants. Also, we define the path to our database file. Finally, we call methods from our database instance that clear and then rebuild the test database so each time we run the tests, the database is empty.</p>
+</li>
+<li>
+<p>Helper Methods! I know that many of my tests will require that I have logged in users, so I will create these methods so that I don't have to do this for every test. Instead, I will call the methods when I need to in the tests.</p>
+</li>
+</ol>
+<h3 id="testing-creating-and-logging-in-users">Testing Creating and Logging in Users</h3>
+<p>Since we want to be able to authenticate users before they can post to our blog, we need to set up a registration and login system. Here's what's involved with registration:</p>
+<ol>
+<li>We must be able to register a new user. I've decided arbitrarily that the information we're collecting from the user includes: </li>
+</ol>
+<p>a. Their username.</p>
+<p>b. Their email address.</p>
+<p>c. Their first name.</p>
+<p>d. Their last name.</p>
+<p>e. Their password.</p>
+<ol>
+<li>
+<p>We need to be able to login a user. This must check that the user is giving a valid password, the password they enter must be confirmed, and the username and email address must not already be in use.</p>
+</li>
+<li>
+<p>We need to be able to logout a user. </p>
+</li>
+</ol>
+<p>We'll be using the helper methods that we created above in our unittests so we avoid repeating ourselves as much as possible. You'll notice that I've also created a test user and a couple of test posts in the setUp section. You'll also notice that I'm dropping (emptying) the database at the end of the tests during teardown. From there we need to write tests to test all of the above points. You'll again notice, I'm leaving part of the file out for now. Also, I'm putting these below the basic tests and before the form tests in the file blog_tests.py. </p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">   ...
+
+   ################################
+   ####   Registration tests   ####
+   ################################
+
+   def test_valid_registration(self):
+      resp = self.register('tester', 'testy@testing.com', 
+                           'Test', 'Tester', 'GoodPassword', 'GoodPassword')
+      self.assertEqual(resp.status_code, 200)
+      self.assertIn(b'Thanks for registering!', resp.data)
+
+   def test_different_passwords(self):
+      resp = self.register('tester2', 'testy2@testing.com',
+                           'Test', 'Tester', 'GoodPassword', 'BadPassword')
+      self.assertEqual(resp.status_code, 200)
+      self.assertIn(b'Your passwords do not match.', resp.data)
+
+   def test_duplicate_registrations(self):
+      resp = self.register('author', 'author@example.com',
+                           'Test', 'Tester', 'GoodPassword', 'GoodPassword')
+      self.assertIn(b'User already exists.', resp.data)
+
+   def test_login_success(self):
+      resp = self.login('author@example.com', 'password')
+      self.assertIn(b'You were successfully logged in', resp.data)
+
+   def test_login_invalid_email(self):
+      resp = self.login('user17@example.com', 'password')
+      self.assertIn(b'Invalid email.', resp.data)
+
+   def test_login_invalid_password(self):
+      resp = self.login('author@example.com', 'Paword')
+      self.assertIn(b'Invalid Password.', resp.data)
+
+   def test_logout(self):
+      self.login('author@example.com', 'password')
+      resp = self.logout()
+      self.assertIn(b'You are logged out.', resp.data)
+
+   ...
+
+</code></pre>
+
+<p>Here's what my tests do:</p>
+<ol>
+<li>
+<p><code>test_valid_registration</code> Attempts to register a new user and expects a message in the response somewhere that says "Thanks for registering!"</p>
+</li>
+<li>
+<p><code>test_different_passwords</code> Attempts to register with mismatched passwords. This should return an error message telling the user what went wrong.</p>
+</li>
+<li>
+<p><code>test_duplicate_registrations</code> Attempts to register using an email address and username that are already in the system. This returns an error message saying the "User already exists."</p>
+</li>
+<li>
+<p><code>test_login_success</code> Attempts to login with correct credentials. This should return a message saying, "You were successfully logged in".</p>
+</li>
+<li>
+<p><code>test_login_invalid_email</code> Attempts to login with an email that has not been stored in the system. This should return an error message.</p>
+</li>
+<li>
+<p><code>test_login_invalid_password</code> Attempts to login with a password that doesn't match the expected password for the user. This should return an error message.</p>
+</li>
+<li>
+<p><code>test_logout</code> Logs in a user and then attempts to logout. Expects a message saying the user has been logged out.</p>
+</li>
+</ol>
+<h3 id="testing-the-blog">Testing the Blog</h3>
+<p>Now that we have tests to get us a functional registration system, we need tests to make sure our blog is working. Again here's what we need to test:</p>
+<ol>
+<li>
+<p>The user cannot post if they are not logged in.</p>
+</li>
+<li>
+<p>The user can post if they are logged in.</p>
+</li>
+<li>
+<p>A non-logged in user can retrieve all of the posts in the database.</p>
+</li>
+<li>
+<p>A non-logged in user can retrieve individual posts in the database by post_id.</p>
+</li>
+</ol>
+<p>Later on we'll add functionality to update and delete posts. We'll also add functionality to retrieve posts only by a single author, but for now, we'll get this much done. Here are my tests that I've added below the registration tests but above the form tests:</p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">   ...
+
+   ##########################
+   ####    Blog Tests    ####
+   ##########################
+
+   def test_blog_not_logged_in(self):
+      resp = self.client.post('/post', data=dict(title=&quot;bad&quot;, slug=&quot;bad&quot;, text=&quot;bad&quot;))
+      self.assertIn(b'You must be logged in.', resp.data)
+
+   def test_blog_logged_in(self):
+      self.login('author@example.com', 'password')
+      data = {
+         'title': 'Test Post',
+         'slug': 'Short summary of the post.',
+         'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+      }
+      resp = self.client.post('/post', data=data)
+      self.assertIn(b'Test Post', resp.data)
+
+   def test_get_all_posts(self):
+      self.login('author@example.com', 'Password')
+      data = [
+         {
+            'title': 'Test Post2',
+            'slug': 'Short summary of the post.',
+            'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+         },
+         {
+             'title': 'Test Post3',
+             'slug': 'Short summary of the post.',
+             'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+         },
+         {
+             'title': 'Test Post4',
+             'slug': 'Short summary of the post.',
+             'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+         }
+      ]
+      for d in data:
+         self.client.post('/post', data=d)
+      resp = self.client.get('/blog')
+      self.assertIn(b'Test Post2', resp.data)
+      self.assertIn(b'Test Post3', resp.data)
+      self.assertIn(b'Test Post4', resp.data)
+
+   def test_get_one_post(self):
+      resp = self.client.get('/blog/1')
+      self.assertIn(b'Title', resp.data)
+      self.assertNotIn(b'Title2', resp.data)
+
+   ...
+</code></pre>
+
+<ol>
+<li>
+<p><code>test_blog_not_logged_in</code> This test attempts to post a new blog post without being logged in. This should return an error message, "You must be logged in."</p>
+</li>
+<li>
+<p><code>test_blog_logged_in</code> This test attempts to post a new blog entry after logging in. This should succeed, and should reroute the use to the page showing the new post.</p>
+</li>
+<li>
+<p><code>test_get_all_posts</code> This tests that the blog page returns a list of all the posts. First we add three posts. After we make a request to the blog page and see that all of the posts have been added.</p>
+</li>
+<li>
+<p><code>test_get_one_post</code> This tests that we can retrieve a single blog post. I'm using one of the posts that was entered during the setUp phase, and I'm also checking that only one post shows up in the response.</p>
+</li>
+</ol>
+<h3 id="forms">Forms</h3>
+<p>Finally, we need to make some small changes to our forms tests because we designed our form differently last time. I'm including the entire blog_tests.py script this time so you can see it all in one place.</p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">import os 
+from bs4 import BeautifulSoup
+import unittest
+from app import app, db
+from app.models import Entry
+
+# Global Test database
+TEST_DB = 'test.db'
+
+class TestBlog(unittest.TestCase):
+
+   def setUp(self):
+      app.config['TESTING'] = True
+      app.config['WTF_CSRF_ENABLED'] = False
+      app.config['DEBUG'] = False
+      app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
+         os.path.join(app.config['BASEDIR'], TEST_DB)
+      self.client = app.test_client()
+      db.drop_all()
+      db.create_all()
+      db.add_user('author', 'author@example.com', 
+                  'Author', 'McAuthorson', 'password', 'password')
+      db.add_post('Title', 'Sluggy', 'The body text.')
+      db.add_post('Title2', 'Sluggy', 'The body text.')
+
+
+   def tearDown(self):
+      db.drop_all() 
+
+   ########################
+   #### Helper Methods ####
+   ########################
+   def register(self, username, email, fname, lname, password, confirm):
+      return self.app.post(
+         '/register',
+         data = {
+            'username': username,
+            'email': email,
+            'fname': fname,
+            'lname': lname,
+            'password': password,
+            'confirm': confirm
+         },
+         follow_redirects=True
+      )
+
+   def login(self, email, password):
+      return self.app.post(
+         '/login',
+         data = {
+            'email': email,
+            'password': password
+         },
+         follow_redirects=True
+      )
+
+   def logout(self):
+      return self.app.get('/logout', follow_redirects = True)
+
+   #########################
+   ####   Basic Tests   ####
+   #########################
+
+   def test_home_page_returns(self):
+      resp = self.client.get('/')
+      self.assertEqual(200, resp.status_code)
+
+   def test_home_page_returns_correct_html(self):
+      resp = self.client.get('/')
+      html = resp.data.decode('utf-8')
+      self.assertTrue(html.startswith('&lt;!DOCTYPE html&gt;'))
+      self.assertIn('&lt;title&gt;Fancy-Pants Blog&lt;/title&gt;', html)
+      self.assertTrue(html.endswith('&lt;/html&gt;'))
+
+   def test_menu_text(self):
+      resp = self.client.get('/')
+      html = resp.data.decode('utf-8')
+      soup = BeautifulSoup(html, 'html.parser')
+      menu = [link.get_text() for link in soup.select('.menu-item')]
+      self.assertListEqual(['About', 'CV', 'Blog'], menu)
+
+   def test_menu_links(self):
+      resp = self.client.get('/')
+      html = resp.data.decode('utf-8')
+      soup = BeautifulSoup(html, 'html.parser')
+      menu = [link.get('href') for link in soup.select('.menu-item a')]
+      self.assertListEqual(['about', 'cv', 'blog'], menu)
+
+   def test_heading_no_name(self):
+      resp = self.client.get('/')
+      html = resp.data.decode('utf-8')
+      soup = BeautifulSoup(html, 'html.parser')
+      head = soup.h1.get_text()
+      self.assertEqual('Hello Stranger', head)
+
+   def test_heading_name(self):
+      resp = self.client.get('/Dylan')
+      html = resp.data.decode('utf-8')
+      soup = BeautifulSoup(html, 'html.parser')
+      head = soup.h1.get_text()
+      self.assertEqual('Hello Dylan', head)
+
+   ################################
+   ####   Registration tests   ####
+   ################################
+
+   def test_valid_registration(self):
+      resp = self.register('tester', 'testy@testing.com', 
+                           'Test', 'Tester', 'GoodPassword', 'GoodPassword')
+      self.assertEqual(resp.status_code, 200)
+      self.assertIn(b'Thanks for registering!', resp.data)
+
+   def test_different_passwords(self):
+      resp = self.register('tester2', 'testy2@testing.com',
+                           'Test', 'Tester', 'GoodPassword', 'BadPassword')
+      self.assertEqual(resp.status_code, 200)
+      self.assertIn(b'Your passwords do not match.', resp.data)
+
+   def test_duplicate_registrations(self):
+      resp = self.register('author', 'author@example.com',
+                           'Test', 'Tester', 'GoodPassword', 'GoodPassword')
+      self.assertIn(b'User already exists.', resp.data)
+
+   def test_login_success(self):
+      resp = self.login('author@example.com', 'password')
+      self.assertIn(b'You were successfully logged in', resp.data)
+
+   def test_login_invalid_email(self):
+      resp = self.login('user17@example.com', 'password')
+      self.assertIn(b'Invalid email.', resp.data)
+
+   def test_login_invalid_password(self):
+      resp = self.login('author@example.com', 'Paword')
+      self.assertIn(b'Invalid Password.', resp.data)
+
+   def test_logout(self):
+      self.login('author@example.com', 'password')
+      resp = self.logout()
+      self.assertIn(b'You are logged out.', resp.data)
+
+   ##########################
+   ####    Blog Tests    ####
+   ##########################
+
+   def test_blog_not_logged_in(self):
+      resp = self.client.post('/post', data=dict(title=&quot;bad&quot;, slug=&quot;bad&quot;, text=&quot;bad&quot;))
+      self.assertIn(b'You must be logged in.', resp.data)
+
+   def test_blog_logged_in(self):
+      self.login('author@example.com', 'password')
+      data = {
+         'title': 'Test Post',
+         'slug': 'Short summary of the post.',
+         'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+      }
+      resp = self.client.post('/post', data=data)
+      self.assertIn(b'Test Post', resp.data)
+
+   def test_get_all_posts(self):
+      self.login('author@example.com', 'Password')
+      data = [
+         {
+            'title': 'Test Post2',
+            'slug': 'Short summary of the post.',
+            'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+         },
+         {
+             'title': 'Test Post3',
+             'slug': 'Short summary of the post.',
+             'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+         },
+         {
+             'title': 'Test Post4',
+             'slug': 'Short summary of the post.',
+             'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+         }
+      ]
+      for d in data:
+         self.client.post('/post', data=d)
+      resp = self.client.get('/blog')
+      self.assertIn(b'Test Post2', resp.data)
+      self.assertIn(b'Test Post3', resp.data)
+      self.assertIn(b'Test Post4', resp.data)
+
+   def test_get_one_post(self):
+      resp = self.client.get('/blog/1')
+      self.assertIn(b'Title', resp.data)
+      self.assertNotIn(b'Title2', resp.data)
+
+   ##########################
+   ####    Form Tests    ####
+   ##########################
+   def test_form(self):
+      resp = self.client.get('/post')
+      html = resp.data.decode('utf-8')
+      self.assertIn('&lt;form method=&quot;POST&quot;&gt;', html)
+      self.assertIn('&lt;/form&gt;', html)
+
+   def test_form_fields(self):
+      resp = self.client.get('/post')
+      html = resp.data.decode('utf-8')
+      soup = BeautifulSoup(html, 'html.parser')
+      fields = [i.attrs['name'] for i in soup.find_all('input')]
+      self.assertListEqual(fields[1:], ['post_title', 'slug', 'submit'])
+      self.assertEqual(soup.textarea.attrs['name'], 'text')
+
+</code></pre>
+
+<p>Now let's run those tests and see that they fail with errors. In the next section, I'll build out my code and get these tests to pass.</p>
+<pre><code>(env) ~/Projects/blog$ python -m unittest tests/blog_tests.py
+E
+======================================================================
+ERROR: blog_tests (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: blog_tests
+Traceback (most recent call last):
+  File &quot;/usr/lib/python3.6/unittest/loader.py&quot;, line 153, in loadTestsFromName
+    module = __import__(module_name)
+  File &quot;Projects/blog/tests/blog_tests.py&quot;, line 4, in &lt;module&gt;
+    from app import app, db
+ImportError: cannot import name 'db'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
+</code></pre></div>
             </div>
         </div>
 
