@@ -125,6 +125,14 @@
 <li>
     <a href="./" class="dropdown-item active">14. Databases and Login</a>
 </li>
+                                    
+<li>
+    <a href="../ch15/" class="dropdown-item">15. Building our Blog</a>
+</li>
+                                    
+<li>
+    <a href="../ch16/" class="dropdown-item">16. Finishing the Blog</a>
+</li>
                                 </ul>
                             </li>
                         </ul>
@@ -141,7 +149,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" class="nav-link disabled">
+                                <a rel="next" href="../ch15/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -206,63 +214,87 @@ Database tables showing ORG, TYPE and CONTACT</p>
 <p>Our first step for our test is to modify our test <code>setUp()</code> method and create some helper methods that we'll use in our unit tests throughout. </p>
 <p><strong>NOTE:</strong> I will be showing just part of the files below as they are getting fairly long. Three dots (<code>...</code>) means that some code has not been copied in, but you should not delete it from your code or add the dots if you are following along.</p>
 <p><em>blog_test.py</em></p>
-<pre><code class="python">import os # 1
+<pre><code class="python">import os #1
 from bs4 import BeautifulSoup
+
 import unittest
-from app import app, db # 2
-from app.models import Entry
+from app import app, db #2
+from app.models import User, Post 
 
 # Global Test database
-TEST_DB = 'test.db' # 3
+TEST_DB = 'test.db' #3
 
-class TestBlog(unittest.TestCase):
-
-   def setUp(self):
+class TestBlog(unittest.TestCase): #4
+   @classmethod
+   def setUpClass(cls):
       app.config['TESTING'] = True
       app.config['WTF_CSRF_ENABLED'] = False
       app.config['DEBUG'] = False
       app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
-         os.path.join(app.config['BASEDIR'], TEST_DB)
-      self.client = app.test_client()
-      db.drop_all()
+         os.path.join(app.config['BASE_DIR'], TEST_DB)
       db.create_all()
-      db.add_user('author', 'author@example.com', 
-                  'Author', 'McAuthorson', 'password', 'password')
-      db.add_post('Title', 'Sluggy', 'The body text.')
-      db.add_post('Title2', 'Sluggy', 'The body text.')
+
+   @classmethod 
+   def tearDownClass(cls):
+      db.drop_all()
+
+   def setUp(self):
+
+      self.client = app.test_client()
+
+      # Add a test user
+      u = User(username='author', email='author@example.com', 
+                  first_name='Author', last_name='McAuthorson')
+      u.hash_password('password')
+      db.session.add(u)
+      db.session.commit()
+      u1 = User.query.get(1)
+
+      # # Add 2 test posts
+      p1 = Post(title='Title', slug='Sluggy', body='The body text.', author=u1.id)
+      db.session.add(p1)
+      db.session.commit()
+      p2 = Post(title='Title2', slug='Sluggy',
+                body='The body text.', author=u1.id)
+      db.session.add(p2)
+      db.session.commit()
+
 
    def tearDown(self):
-      db.drop_all() 
+      for table in reversed(db.metadata.sorted_tables):
+         db.engine.execute(table.delete())
+      db.session.commit()
+      db.session.remove() 
 
    ########################
    #### Helper Methods ####
    ########################
-
-   def register(self, username, email, password, confirm):
-      return self.app.post(
+   def register(self, username, email, fname, lname, password, confirm):
+      return self.client.post(
          '/register',
          data = {
             'username': username,
             'email': email,
+            'first': fname,
+            'last': lname,
             'password': password,
-            'confirm': confirm
+            'password2': confirm
          },
          follow_redirects=True
       )
 
-   def login(self, cred, password):
-      return self.app.post(
+   def login(self, email, password):
+      return self.client.post(
          '/login',
          data = {
-            'cred': cred,
+            'email': email,
             'password': password
          },
          follow_redirects=True
       )
 
    def logout(self):
-      return self.app.get('/logout', follow_redirects = True)
-
+      return self.client.get('/logout', follow_redirects = True)
 ...
 
 </code></pre>
@@ -278,7 +310,7 @@ class TestBlog(unittest.TestCase):
 <p>We are creating a global constant TEST_DB that is the name of the database file we will create in setup. Python doesn't enforce constants like Java or C++, but by naming a variable in all caps, we're indicating that it should be treated as a constant. As such, you will never change the value of TEST_DB in the code.</p>
 </li>
 <li>
-<p>We added a bunch of configuration to our app before we created our test client. These configurations include setting the value of some constants. Also, we define the path to our database file. Finally, we call methods from our database instance that clear and then rebuild the test database so each time we run the tests, the database is empty.</p>
+<p>We've complicated our setup and teardown slightly by adding class setups. These methods allow our tests to create a database, populate it and then tear it down again at the end. We added a bunch of configuration to our app before we created our test client. These configurations include setting the value of some constants. Also, we define the path to our database file. Finally, we call methods from our database instance that clear and then rebuild the test database so each time we run the tests, the database is empty.</p>
 </li>
 <li>
 <p>Helper Methods! I know that many of my tests will require that I have logged in users, so I will create these methods so that I don't have to do this for every test. Instead, I will call the methods when I need to in the tests.</p>
@@ -320,7 +352,7 @@ class TestBlog(unittest.TestCase):
       resp = self.register('tester2', 'testy2@testing.com',
                            'Test', 'Tester', 'GoodPassword', 'BadPassword')
       self.assertEqual(resp.status_code, 200)
-      self.assertIn(b'Your passwords do not match.', resp.data)
+      self.assertIn(b'Field must be equal to password.', resp.data)
 
    def test_duplicate_registrations(self):
       resp = self.register('author', 'author@example.com',
@@ -333,7 +365,7 @@ class TestBlog(unittest.TestCase):
 
    def test_login_invalid_email(self):
       resp = self.login('user17@example.com', 'password')
-      self.assertIn(b'Invalid email.', resp.data)
+      self.assertIn(b'Invalid Email.', resp.data)
 
    def test_login_invalid_password(self):
       resp = self.login('author@example.com', 'Paword')
@@ -397,44 +429,24 @@ class TestBlog(unittest.TestCase):
    ##########################
 
    def test_blog_not_logged_in(self):
-      resp = self.client.post('/post', data=dict(title=&quot;bad&quot;, slug=&quot;bad&quot;, text=&quot;bad&quot;))
-      self.assertIn(b'You must be logged in.', resp.data)
+      resp = self.client.post('/post', data=dict(title=&quot;bad&quot;, slug=&quot;bad&quot;, text=&quot;bad&quot;), follow_redirects=True)
+      self.assertIn(b'You must be logged in', resp.data)
 
    def test_blog_logged_in(self):
       self.login('author@example.com', 'password')
       data = {
-         'title': 'Test Post',
+         'post_title': 'Test Post',
          'slug': 'Short summary of the post.',
          'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
       }
-      resp = self.client.post('/post', data=data)
+      resp = self.client.post('/post', data=data, follow_redirects=True)
       self.assertIn(b'Test Post', resp.data)
 
    def test_get_all_posts(self):
       self.login('author@example.com', 'Password')
-      data = [
-         {
-            'title': 'Test Post2',
-            'slug': 'Short summary of the post.',
-            'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
-         },
-         {
-             'title': 'Test Post3',
-             'slug': 'Short summary of the post.',
-             'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
-         },
-         {
-             'title': 'Test Post4',
-             'slug': 'Short summary of the post.',
-             'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
-         }
-      ]
-      for d in data:
-         self.client.post('/post', data=d)
       resp = self.client.get('/blog')
-      self.assertIn(b'Test Post2', resp.data)
-      self.assertIn(b'Test Post3', resp.data)
-      self.assertIn(b'Test Post4', resp.data)
+      self.assertIn(b'Title', resp.data)
+      self.assertIn(b'Title2', resp.data)
 
    def test_get_one_post(self):
       resp = self.client.get('/blog/1')
@@ -442,6 +454,7 @@ class TestBlog(unittest.TestCase):
       self.assertNotIn(b'Title2', resp.data)
 
    ...
+
 </code></pre>
 
 <ol>
@@ -459,56 +472,79 @@ class TestBlog(unittest.TestCase):
 </li>
 </ol>
 <h3 id="forms">Forms</h3>
-<p>Finally, we need to make some small changes to our forms tests because we designed our form differently last time. I'm including the entire blog_tests.py script this time so you can see it all in one place.</p>
+<p>Finally, I'm eliminating my forms tests. They were testing the html and really I don't want to test html because it is a constant. Instead, my blog tests are effectively testing that the forms are performing the function they should be doing. I'm including the entire blog_tests.py script this time so you can see it all in one place.</p>
 <p><em>blog_tests.py</em></p>
 <pre><code class="python">import os 
 from bs4 import BeautifulSoup
+
 import unittest
 from app import app, db
-from app.models import Entry
+from app.models import User, Post 
 
 # Global Test database
 TEST_DB = 'test.db'
 
 class TestBlog(unittest.TestCase):
-
-   def setUp(self):
+   @classmethod
+   def setUpClass(cls):
       app.config['TESTING'] = True
       app.config['WTF_CSRF_ENABLED'] = False
       app.config['DEBUG'] = False
       app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
-         os.path.join(app.config['BASEDIR'], TEST_DB)
-      self.client = app.test_client()
-      db.drop_all()
+         os.path.join(app.config['BASE_DIR'], TEST_DB)
       db.create_all()
-      db.add_user('author', 'author@example.com', 
-                  'Author', 'McAuthorson', 'password', 'password')
-      db.add_post('Title', 'Sluggy', 'The body text.')
-      db.add_post('Title2', 'Sluggy', 'The body text.')
+
+   @classmethod 
+   def tearDownClass(cls):
+      db.drop_all()
+
+   def setUp(self):
+
+      self.client = app.test_client()
+
+      # Add a test user
+      u = User(username='author', email='author@example.com', 
+                  first_name='Author', last_name='McAuthorson')
+      u.hash_password('password')
+      db.session.add(u)
+      db.session.commit()
+      u1 = User.query.get(1)
+
+      # # Add 2 test posts
+      p1 = Post(title='Title', slug='Sluggy', body='The body text.', author=u1.id)
+      db.session.add(p1)
+      db.session.commit()
+      p2 = Post(title='Title2', slug='Sluggy',
+                body='The body text.', author=u1.id)
+      db.session.add(p2)
+      db.session.commit()
 
 
    def tearDown(self):
-      db.drop_all() 
+      for table in reversed(db.metadata.sorted_tables):
+         db.engine.execute(table.delete())
+      db.session.commit()
+      db.session.remove() 
 
    ########################
    #### Helper Methods ####
    ########################
    def register(self, username, email, fname, lname, password, confirm):
-      return self.app.post(
+      return self.client.post(
          '/register',
          data = {
             'username': username,
             'email': email,
-            'fname': fname,
-            'lname': lname,
+            'first': fname,
+            'last': lname,
             'password': password,
-            'confirm': confirm
+            'password2': confirm
          },
          follow_redirects=True
       )
 
    def login(self, email, password):
-      return self.app.post(
+      return self.client.post(
          '/login',
          data = {
             'email': email,
@@ -518,7 +554,7 @@ class TestBlog(unittest.TestCase):
       )
 
    def logout(self):
-      return self.app.get('/logout', follow_redirects = True)
+      return self.client.get('/logout', follow_redirects = True)
 
    #########################
    ####   Basic Tests   ####
@@ -540,14 +576,14 @@ class TestBlog(unittest.TestCase):
       html = resp.data.decode('utf-8')
       soup = BeautifulSoup(html, 'html.parser')
       menu = [link.get_text() for link in soup.select('.menu-item')]
-      self.assertListEqual(['About', 'CV', 'Blog'], menu)
+      self.assertListEqual(['About', 'CV', 'Blog', 'Login', 'Register'], menu)
 
    def test_menu_links(self):
       resp = self.client.get('/')
       html = resp.data.decode('utf-8')
       soup = BeautifulSoup(html, 'html.parser')
       menu = [link.get('href') for link in soup.select('.menu-item a')]
-      self.assertListEqual(['about', 'cv', 'blog'], menu)
+      self.assertListEqual(['/about', '/cv', '/blog', '/login', '/register'], menu)
 
    def test_heading_no_name(self):
       resp = self.client.get('/')
@@ -557,11 +593,12 @@ class TestBlog(unittest.TestCase):
       self.assertEqual('Hello Stranger', head)
 
    def test_heading_name(self):
-      resp = self.client.get('/Dylan')
+      self.login('author@example.com', 'password')
+      resp = self.client.get('/')
       html = resp.data.decode('utf-8')
       soup = BeautifulSoup(html, 'html.parser')
       head = soup.h1.get_text()
-      self.assertEqual('Hello Dylan', head)
+      self.assertEqual('Hello Author', head)
 
    ################################
    ####   Registration tests   ####
@@ -577,7 +614,7 @@ class TestBlog(unittest.TestCase):
       resp = self.register('tester2', 'testy2@testing.com',
                            'Test', 'Tester', 'GoodPassword', 'BadPassword')
       self.assertEqual(resp.status_code, 200)
-      self.assertIn(b'Your passwords do not match.', resp.data)
+      self.assertIn(b'Field must be equal to password.', resp.data)
 
    def test_duplicate_registrations(self):
       resp = self.register('author', 'author@example.com',
@@ -590,7 +627,7 @@ class TestBlog(unittest.TestCase):
 
    def test_login_invalid_email(self):
       resp = self.login('user17@example.com', 'password')
-      self.assertIn(b'Invalid email.', resp.data)
+      self.assertIn(b'Invalid Email.', resp.data)
 
    def test_login_invalid_password(self):
       resp = self.login('author@example.com', 'Paword')
@@ -606,66 +643,29 @@ class TestBlog(unittest.TestCase):
    ##########################
 
    def test_blog_not_logged_in(self):
-      resp = self.client.post('/post', data=dict(title=&quot;bad&quot;, slug=&quot;bad&quot;, text=&quot;bad&quot;))
-      self.assertIn(b'You must be logged in.', resp.data)
+      resp = self.client.post('/post', data=dict(title=&quot;bad&quot;, slug=&quot;bad&quot;, text=&quot;bad&quot;), follow_redirects=True)
+      self.assertIn(b'You must be logged in', resp.data)
 
    def test_blog_logged_in(self):
       self.login('author@example.com', 'password')
       data = {
-         'title': 'Test Post',
+         'post_title': 'Test Post',
          'slug': 'Short summary of the post.',
          'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
       }
-      resp = self.client.post('/post', data=data)
+      resp = self.client.post('/post', data=data, follow_redirects=True)
       self.assertIn(b'Test Post', resp.data)
 
    def test_get_all_posts(self):
       self.login('author@example.com', 'Password')
-      data = [
-         {
-            'title': 'Test Post2',
-            'slug': 'Short summary of the post.',
-            'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
-         },
-         {
-             'title': 'Test Post3',
-             'slug': 'Short summary of the post.',
-             'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
-         },
-         {
-             'title': 'Test Post4',
-             'slug': 'Short summary of the post.',
-             'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
-         }
-      ]
-      for d in data:
-         self.client.post('/post', data=d)
       resp = self.client.get('/blog')
-      self.assertIn(b'Test Post2', resp.data)
-      self.assertIn(b'Test Post3', resp.data)
-      self.assertIn(b'Test Post4', resp.data)
+      self.assertIn(b'Title', resp.data)
+      self.assertIn(b'Title2', resp.data)
 
    def test_get_one_post(self):
       resp = self.client.get('/blog/1')
       self.assertIn(b'Title', resp.data)
       self.assertNotIn(b'Title2', resp.data)
-
-   ##########################
-   ####    Form Tests    ####
-   ##########################
-   def test_form(self):
-      resp = self.client.get('/post')
-      html = resp.data.decode('utf-8')
-      self.assertIn('&lt;form method=&quot;POST&quot;&gt;', html)
-      self.assertIn('&lt;/form&gt;', html)
-
-   def test_form_fields(self):
-      resp = self.client.get('/post')
-      html = resp.data.decode('utf-8')
-      soup = BeautifulSoup(html, 'html.parser')
-      fields = [i.attrs['name'] for i in soup.find_all('input')]
-      self.assertListEqual(fields[1:], ['post_title', 'slug', 'submit'])
-      self.assertEqual(soup.textarea.attrs['name'], 'text')
 
 </code></pre>
 

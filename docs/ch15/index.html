@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>15. Building our Blog - Test-Driven Development with Flask</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Test-Driven Development with Flask</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">One <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch1/" class="dropdown-item">1. Intro to TDD</a>
+</li>
+                                    
+<li>
+    <a href="../ch2/" class="dropdown-item">2. Types of Tests</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Two <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch3/" class="dropdown-item">3. Intro to Objects</a>
+</li>
+                                    
+<li>
+    <a href="../ch4/" class="dropdown-item">4. TDD with Objects</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Three <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch5/" class="dropdown-item">5. The Internet</a>
+</li>
+                                    
+<li>
+    <a href="../ch6/" class="dropdown-item">6. TDD Online</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Four <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch7/" class="dropdown-item">7. Intro to Flask</a>
+</li>
+                                    
+<li>
+    <a href="../ch8/" class="dropdown-item">8. Smallest App</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Five <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch9/" class="dropdown-item">9. Intro to HTML</a>
+</li>
+                                    
+<li>
+    <a href="../ch10/" class="dropdown-item">10. Intro to Templates</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Six <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch11/" class="dropdown-item">11. Decorators</a>
+</li>
+                                    
+<li>
+    <a href="../ch12/" class="dropdown-item">12. Templates the TDD Way</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Seven <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch13/" class="dropdown-item">13. Forms the TDD way</a>
+</li>
+                                    
+<li>
+    <a href="../ch14/" class="dropdown-item">14. Databases and Login</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">15. Building our Blog</a>
+</li>
+                                    
+<li>
+    <a href="../ch16/" class="dropdown-item">16. Finishing the Blog</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../ch14/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../ch16/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#building-our-blog" class="nav-link">Building Our Blog</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="building-our-blog">Building Our Blog</h1>
+<p>In the last chapter, we set up a whole bunch of unittests to get a registration system and a blogging system working. Now we get to build all of that. We're going to be using 3 external libraries to get this all working. </p>
+<ol>
+<li>
+<p><strong>Flask-SQLAlchemy</strong> This library installs SQLAlchemy, a Python library that is an Object Relational Mapper that allows us to write Python objects that are mapped to structures in a relational database. The library then serves as a Flask specific API that integrates SQLAlchemy with Flask in the same way Flask-WTForms did.</p>
+</li>
+<li>
+<p><strong>Flask-Migrate</strong> This library is a wrapper for Alembic, which is a migration framework for SQLAlchemy. It allows us to programmatically make changes to our database if we want to do so. This we'll be using when we run our app in a production space, but it will not be used in our unittests. However, if you want to get your app up and running, you can use this to easily manage your database build.</p>
+</li>
+<li>
+<p><strong>Flask-Login</strong> This library manages user registration, authentication, and access for our Flask application. It makes processing credentials easier.</p>
+</li>
+</ol>
+<p>First, we're going to do a little bit of refactoring of our app to make things a little cleaner. First, we're going to create a config file that is a sibling of app.py. </p>
+<p><em>config.py</em></p>
+<pre><code class="python">import os 
+
+class Config:
+   BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+   SECRET_KEY = os.environ.get('SECRET_KEY') or 'us@randomStrin1her0'
+   SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+      'sqlite:///' + os.path.join(basedir, 'app.db')
+   SQLALCHEMY_TRACK_MODIFICATIONS = False 
+</code></pre>
+
+<p>In this configuration file, we're adding our secret key variable that we created when we set up our forms. Then we're setting up the global constants related to SQLALCHEMY our ORM. Once we make those changes, we can change our __init__.py file and how we do our configurations. Flask allows us to configure from an object rather than adding each configuration independently. This makes things a bit more efficient because all of our configurations are organized in a configuration file. We're also going to be moving all of our routes out of the init file into a script called routes.py, which we'll look at in a moment.</p>
+<p><em>__init__.py</em></p>
+<pre><code class="python">from flask import Flask
+from config import Config
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config.from_object(Config)
+db = SQLAlchemy(app)
+
+from app import routes, models
+
+</code></pre>
+
+<p>First, you'll notice that my imports have changed. A number of the imports were used in the routes, so I'm not importing them here, but instead will add them to the routes.py. Second, I have a number of extra lines of app configuration and setup. I configure the app and instantiate a db and a migrate object. Finally, I'm importing routes and models. You'll notice that this one script is doing less, and now __init__.py is more for initializing the app rather than handling any traffic. As our apps grow in size, it is fairly customary to have them span out across a number of files. This allows us to organize the different components more effectively. When we do this, we just have to keep track of how we're importing everything.</p>
+<p>At this point, I also create a new routes.py file, but I will be refactoring it considerably later:</p>
+<p><em>routes.py</em></p>
+<pre><code class="python">from flask import render_template, request
+from app import app
+from app.forms import NewEntryForm
+
+@app.route('/')
+@app.route('/&lt;name&gt;')
+def index(name=None):
+   data = {
+       'title': 'Fancy-Pants Blog',
+       'menu': [
+          {
+              'link': 'about',
+              'text': 'About'
+          },
+           {
+              'link': 'cv',
+              'text': 'CV'
+          },
+           {
+              'link': 'blog',
+              'text': 'Blog'
+          }
+       ]
+   }
+   return render_template('index.html', data=data, name=name)
+
+
+@app.route('/blog')
+def blog():
+   data = {
+       &quot;title&quot;: &quot;Fancy-Pants Blog&quot;,
+       &quot;menu&quot;: [
+          {
+              &quot;link&quot;: &quot;about&quot;,
+              &quot;text&quot;: &quot;About&quot;
+          },
+           {
+              &quot;link&quot;: &quot;blog&quot;,
+              &quot;text&quot;: &quot;Blog&quot;
+          }
+       ],
+       &quot;posts&quot;: [
+           {
+               &quot;title&quot;: &quot;Post One&quot;,
+               &quot;author&quot;: &quot;Jimmy&quot;,
+               &quot;text&quot;: &quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolor doloremque totam adipisci ex dolores vitae enim soluta quo provident! Voluptatem tenetur harum magni pariatur. Aliquid laborum dolores harum dignissimos quibusdam!&quot;
+           },
+           {
+               &quot;title&quot;: &quot;About Chickens&quot;,
+               &quot;author&quot;: &quot;Jimmy&quot;,
+               &quot;text&quot;: &quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolor doloremque totam adipisci ex dolores vitae enim soluta quo provident! Voluptatem tenetur harum magni pariatur. Aliquid laborum dolores harum dignissimos quibusdam!&quot;
+           },
+           {
+               &quot;title&quot;: &quot;Trampled by Turtles&quot;,
+               &quot;author&quot;: &quot;Jimmy&quot;,
+               &quot;text&quot;: &quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolor doloremque totam adipisci ex dolores vitae enim soluta quo provident! Voluptatem tenetur harum magni pariatur. Aliquid laborum dolores harum dignissimos quibusdam!&quot;
+           }
+       ]
+   }
+   return render_template('blog.html', data=data)
+
+
+@app.route('/post', methods=['GET', 'POST'])
+def new_post():
+   data = {
+       'title': 'Blog',
+       'post_title': None,
+       'author': None,
+       'text': None
+   }
+
+   form = NewEntryForm()
+
+   if form.validate_on_submit():
+      data['post_title'] = form.data['post_title']
+      data['author'] = form.data['author']
+      data['text'] = form.data['text']
+      form.data['post_title'] = ''
+      form.data['author'] = ''
+      form.data['text'] = ''
+
+   return render_template('post.html', form=form, data=data)
+</code></pre>
+
+<p>We'll be modifying this later, but I like to copy my code now so I don't forget. But, before I build out my routes, I'm going to build out my models. Models are Python objects (or classes) that will be associated with database tables. This is what we mean by object relational mapping. Let me give you a quick example before we get into the models we need for this app. Please note: this example should not go into your code for the Flask app if you are following along.</p>
+<pre><code class="python">from app import db
+
+class People(db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   first_name = db.Column(db.String(120))
+   last_name = db.Column(db.String(120))
+</code></pre>
+
+<p>This object extends the Model class from our db module. It adds 3 properties, which are an id, a first name, and a last name. To create the same table in SQL would be:</p>
+<pre><code class="sql">CREATE TABLE People(
+   id int AUTO_INCREMENT PRIMARY KEY,
+   FirstName varchar(120),
+   LastName varchar(120)
+);
+</code></pre>
+
+<p>In both cases, the table would have 3 columns per row, one of which is an integer that increments automatically (meaning it is not input by your program), and the other two are strings that should come from your program. Represented as a table with some data in it:</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>FirstName</th>
+<th>LastName</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Joe</td>
+<td>Smith</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Jane</td>
+<td>Doe</td>
+</tr>
+</tbody>
+</table>
+<p>Now that you have a sense of how our ORM is going to work, lets take a look at the Models for our blog application. I know immediately that I need two models. I need a model for users. I also need a model for blog posts. Arbitrarily, I said that users need a username, an email address, a first name, a last name, and a password. I might have some extra values that get populated automatically like when they registered or whether the account is active or not. I might also have a field to differentiate between users and administrators. I won't here, but I could. It's up to me. I also said that a post needs a title, a tag line or slug, an author, and text. I'll also want to store the created and edited date for the post. Again, you can design your Models how you want as long as you plan for it in your tests. So let's look at my models:</p>
+<p><em>models.py</em></p>
+<pre><code class="python">from . import db 
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
+
+class User(UserMixin, db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   username = db.Column(db.String(40), index=True, unique=True, nullable=False)
+   email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+   first_name = db.Column(db.String(120), nullable=False)
+   last_name = db.Column(db.String(120), nullable=False)
+   password = db.Column(db.String(200))
+   joined = db.Column(db.DateTime, index=True, default=datetime.utcnow())
+   posts = db.relationship('Post', backref='author_posts', lazy='dynamic')
+
+   def hash_password(self, password):
+      self.password = generate_password_hash(password, method='sha256')
+
+   def check_password(self, password):
+      return check_password_hash(self.password, password)
+
+   def __repr__(self):
+      return '&lt;User {}&gt;'.format(self.username)
+
+
+class Post(db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   title = db.Column(db.String(120), nullable=False)
+   slug = db.Column(db.String(140), nullable=False)
+   body = db.Column(db.Text(), nullable=False)
+   created = db.Column(db.DateTime, index=True, default=datetime.utcnow())
+   author = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+   def __repr__(self):
+      return '&lt;Post&gt; {}'.format(self.slug)
+
+</code></pre>
+
+<p>You can see that I have two related objects: User and Post. Users are, well, users and the posts are the posts that users write. Each attribute that we want to store in the database becomes a property in the object, and <code>db.Column</code> references the Column class from SQLAlchemy. It would be worthwhile to take a moment, if you haven't yet, to look through the <a href="https://docs.sqlalchemy.org/en/13/core/type_basics.html">SQLAlchemy documentation</a> on data types. </p>
+<p>There are a few specific things I want to point out:</p>
+<ol>
+<li>
+<p><code>posts = db.relationship('Post', backref='author_posts', lazy='dynamic')</code> This attribute means that there is a relationship between users and posts (or between the User table and the Post table). The backref describes which attribute in Post will reference the User table (ie. the author of the post will not be a string name but rather an id that is linked or indexed to the User table). Note that the value in <code>backref</code> cannot have the same name as the field that will be referencing this table. I just add posts to the field name so it is unique.</p>
+</li>
+<li>
+<p><code>hash_password()</code> and <code>check_password</code> We're relying on werkzeug security to manage our password hashing and checking. It is crucial when we store a password data in a database that we don't store it in plain text. While we need to do everything to prevent our servers from being exploited, it's better to plan for the possibility that someone could get into your server or exfiltrate your database content despite your best efforts. This means sensitive data should be hashed so that if there is a breach, that data is cannot easily be read. It might be advisable if you are building a large app to pass of authentication management to some Single Sign On (SSO) service like Google or Facebook. These massive companies have tremendous resources to ensure that user identities are protected. </p>
+</li>
+<li>
+<p>A few things to know about hashing passwords: Werkzeug uses a one-way hash algorithm that takes the plain text a user enters, adds a unique (for that user) set of extra characters, and then ecrypts the resulting string with a strong encryption algorithm. It is one way because there is no "known" way to convert the hashed password back into plain text. Werkzeug hashes the passwords for storage in our database, and then uses check passwords to compare plain text to the stored hash.</p>
+</li>
+<li>
+<p><code>def __repr__(self):</code> These functions give a string representation of the object for use in the command line interface, which we will not be exploring here.</p>
+</li>
+<li>
+<p><code>created</code> and <code>joined</code> Both of these attributes are datetime fields in the database. This is used to store a date and time. By default, both functions set the timestamp to now (whenever the function is called). You can override these, but we won't be because we can allow the timestamps to be automatic.</p>
+</li>
+<li>
+<p><code>db.ForeignKey('user.id')</code> This attribute in the Post object creates a relationship to the User object. This means that an id from the User object is stored with the Post, meaning we can easily join data from User and Post based on the shared value of id. So if my user, Sue, has an id of 236, I can easily retrieve all posts written by author 236 in the Post table. Alternatively, I can retrieve the author of a given post by the id. This is why we call relational databases "relational." </p>
+</li>
+</ol>
+<p>I encourage you to look at the rest of the elements of the models and figure out how they will map onto a database table. Being able to visualize what the code is doing is useful, I believe.</p>
+<p>Now we have our Models built. Next, I want to look back at my tests and see what's happening when this is run. The next snippet is part of our blog_tests.py file. </p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">...
+   @classmethod
+   def setUpClass(cls):
+      app.config['TESTING'] = True
+      app.config['WTF_CSRF_ENABLED'] = False
+      app.config['DEBUG'] = False
+      app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
+         os.path.join(app.config['BASE_DIR'], TEST_DB)
+      db.create_all()
+
+   @classmethod 
+   def tearDownClass(cls):
+      db.drop_all()
+
+   def setUp(self):
+
+      self.client = app.test_client()
+
+      # Add a test user
+      u = User(username='author', email='author@example.com', 
+                  first_name='Author', last_name='McAuthorson')
+      u.hash_password('password')
+      db.session.add(u)
+      db.session.commit()
+      u1 = User.query.get(1)
+
+      # # Add 2 test posts
+      p1 = Post(title='Title', slug='Sluggy', body='The body text.', author=u1.id)
+      db.session.add(p1)
+      db.session.commit()
+      p2 = Post(title='Title2', slug='Sluggy',
+                body='The body text.', author=u1.id)
+      db.session.add(p2)
+      db.session.commit()
+
+
+   def tearDown(self):
+      for table in reversed(db.metadata.sorted_tables):
+         db.engine.execute(table.delete())
+      db.session.commit()
+      db.session.remove() 
+...
+</code></pre>
+
+<ol>
+<li>
+<p><code>setUpClass</code> In this method, we setup the configuration for testing, and on the last line we issue the <code>db.create_all()</code> command, which creates the database and all of the tables. When we use Flask-Migrate for our production site, we'll do this in the command line and use a migration tool that's very much like git insofar as it tracks database versions or migrations.</p>
+</li>
+<li>
+<p><code>tearDownClass</code> This method tells the database server to drop all of the tables. This means that all the tables used in our tests will be deleted. It does not actually remove the database, however. </p>
+</li>
+<li>
+<p><code>setUp</code> Now in set up we're using the database to create a user and a couple of posts. This is just setup for testing. </p>
+</li>
+<li>
+<p><code>tearDown</code> you'll notice that we delete the tables and then commit those changes and finally close our database session.</p>
+</li>
+</ol>
+<p>These techniques are all going to be used in our routes. So now we can return to our routes and get our app working so that it passes our tests. I'm going to do some singificant refactoring and eliminating some features (specifically the one that greets different users). The first step I want to do is get my authentication functions working. So, I need to add login-manager to my startup script. </p>
+<p><em>__init__.py</em></p>
+<pre><code class="python">from flask import Flask
+from config import Config
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_migrate import Migrate
+
+app = Flask(__name__)
+app.config.from_object(Config)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+login = LoginManager(app)
+login.login_view = 'index'
+login.login_message = 'You must be logged in'
+
+from app import routes, models
+</code></pre>
+
+<p>First we import flask_login's LoginManager. Note, you'll need to use pip to install flask-login before this works. Then we create a login instance of the LoginManager for our app. I'm also adding some messages to the login object. <code>login_view</code> tells the login manager which view (or route) we should redirect the user to if they unsuccessfully try ot access a resource that requires login. The <code>login_message</code> is the message that will be flashed if the user needs to login to a resource. Also notice that I've added flask-migrate and created an instance of the migrate object. This will be used for the production app, but not our development/testing app. We also need to add a function to our models.py script that helps the login manager keep track of the currently logged in user. We add a function at the bottom of models.py:</p>
+<p><em>models.py</em></p>
+<pre><code class="python">from . import db 
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timezone
+from app import login
+
+class User(UserMixin, db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   username = db.Column(db.String(40), index=True, unique=True, nullable=False)
+   email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+   first_name = db.Column(db.String(120), nullable=False)
+   last_name = db.Column(db.String(120), nullable=False)
+   password = db.Column(db.String(200))
+   joined = db.Column(db.DateTime, index=True, default=datetime.now(timezone.utc))
+   posts = db.relationship('Post', backref='author_posts', lazy='dynamic')
+
+   def hash_password(self, password):
+      self.password = generate_password_hash(password, method='sha256')
+
+   def check_password(self, password):
+      return check_password_hash(self.password, password)
+
+   def __repr__(self):
+      return '&lt;User {}&gt;'.format(self.username)
+
+
+class Post(db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   title = db.Column(db.String(120), nullable=False)
+   slug = db.Column(db.String(140), nullable=False)
+   body = db.Column(db.Text(), nullable=False)
+   created = db.Column(db.DateTime, index=True, default=datetime.now(timezone.utc))
+   author = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+   def __repr__(self):
+      return '&lt;Post&gt; {}'.format(self.slug)
+
+
+@login.user_loader
+def load_user(id):
+   return User.query.get(int(id))
+
+</code></pre>
+
+<p>Every time a logged in user navigates to a new page, the LoginManager calls the <code>user_loader</code> method, which in turn calls the <code>load_user</code> function which returns the user object of the currently logged-in user.</p>
+<p><em>routes.py</em></p>
+<pre><code class="python">from flask import render_template, request, redirect, flash, url_for
+from flask_login import current_user, login_user, logout_user, login_required
+from app import app
+from app.forms import NewEntryForm, LoginForm
+from app.models import User
+
+...
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+   if current_user.is_authenticated:
+      return redirect(url_for('index'))
+   form = LoginForm()
+   if form.validate_on_submit():
+      user = User.query.filter_by(email=form.email.data).first()
+      if user is None:
+         flash('Invalid Email.')
+         return redirect(url_for('login'))
+      if not user.check_password(form.password.data):
+         flash('Invalid Password.')
+         return redirect(url_for('login'))
+      login_user(user, remember=form.remember_me.data)
+      flash('You were successfully logged in.')
+      return redirect(url_for('index'))
+   return render_template('login.html', title='Sign In', form=form)
+
+</code></pre>
+
+<ol>
+<li>
+<p><code>from flask import render_template, request, redirect, flash url_for</code> You'll notice that I'm now importing redirect and flash from flask. Redirect redirects the user to a different path either after a successful login or after a failed login. Flash flashes a message to the user on the page where they land after the redirect. We're going to add that to our template later.</p>
+</li>
+<li>
+<p><code>from flask_login import current_user, login_user, logout_user, login_required</code> These will be used to track our user and to log our user in. We're using Flask_login to manage our user access control rather than doing it manually.</p>
+</li>
+<li>
+<p><code>from app.models import User</code> and <code>from app.forms import LoginForm</code> I need to import a User and a login form, which I haven't yet created.</p>
+</li>
+<li>
+<p><code>login()</code> This is a method that follows a pattern that will be used on all of our views that provide the user with a form. </p>
+</li>
+<li>
+<p>The first two lines of the method check to see if the user is already logged in. If so, they are redirected to the homepage. </p>
+</li>
+<li>
+<p>Next, we instantiate our form. </p>
+</li>
+<li>
+<p>Next we check to see if there has been a form submitted. If not, we drop to the last line and return the login page with the form included. </p>
+</li>
+<li>
+<p>If the user has submitted data, first we try to get the user out of our database. You'll notice that I'm not manipulating the form data.</p>
+</li>
+<li>
+<p>Next we check to see if the user exists or if the password is authentic. I don't use "and" because I want to check both cases independently. If the user is None, this should pass. It should also pass if the password is bad. If either are the case, then the user is redirected to the login page with a flashed message (remember, our test was checking for just such a message).</p>
+</li>
+<li>
+<p>If the that all passes, then we call the login_user method from flask-login which sets the appropriate session variables and manages the logged in user across different pages of our site.</p>
+</li>
+<li>
+<p>Last, if login happened, then we redirect to the index page.</p>
+</li>
+</ol>
+<p>Next we add to routes another import and a logout method:</p>
+<p><em>routes.py</em></p>
+<pre><code class="python">...
+
+@app.route('/logout')
+def logout():
+   logout_user()
+   flash('You are logged out.')
+   return redirect(url_for('index'))
+
+</code></pre>
+
+<p>This method is easy and uses the logout_user method from flask-login. This deletes the session variable that was stored to keep the user logged-in from one page to another. Just a side note: it is important to log out of websites--especially those that are high stakes like bank accounts or university websites--when you're done and even close your browser because that session data could stick around. </p>
+<p>Next I need to create a route to register a user. I add this to my routes.py script:</p>
+<p><em>routes.py</em></p>
+<pre><code class="python">...
+
+from app import app, db
+from app.forms import NewEntryForm, LoginForm, RegistrationForm
+
+...
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+   if current_user.is_authenticated:
+      return redirect(url_for('index'))
+   form = RegistrationForm()
+   if form.validate_on_submit():
+
+      user = User(
+         username=form.username.data,
+         email = form.email.data,
+         first_name = form.first.data,
+         last_name = form.last.data
+      )
+
+      user.hash_password(form.password.data)
+      db.session.add(user)
+      db.session.commit()
+      flash('Thanks for registering!')
+      return redirect(url_for('login'))
+   return render_template('register.html', title='Register', form=form)
+
+</code></pre>
+
+<p>This is very much like the login function except that we first verify the information is good. If the form validates (we'll see that next), then we create a new user instance, hash the password, add the user to the database, and commit the database changes. </p>
+<ol>
+<li>
+<p><code>user = User(...)</code> This creates an instance of the user object, which basically lines up the data from the form with fields that exist in our database. We must do this before we add the data to our database because we're using the ORM layer. It is possible to include SQL statements in your Flask app and manage the database manually. This would prevent using SQLAlchemy as a dependency, but it would also make things more complicated.</p>
+</li>
+<li>
+<p><code>user.hash_password(form.password.data)</code> You'll notice that I need to hash the password before it is added to the User model instance. This is important.</p>
+</li>
+<li>
+<p><code>db.session.add(user)</code> and <code>db.session.commit()</code> The first command tells SQLAlchemy to add the user object to the database. The object is already mapped to the database table, so this is all we have to do in our code. Next, we commit those changes. Databases get written in two steps. First we make a change and then we commit that change. If you omit the "commit" then the changes will not be written to the database.</p>
+</li>
+</ol>
+<p>If that's all right, then the user can login. Now we need to finish off a bunch of other things to get the User management working. We'll first make our login form and registration form.</p>
+<p><em>forms.py</em></p>
+<pre><code class="python">from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from app.models import User
+
+class NewEntryForm(FlaskForm):
+   post_title = StringField('Title', validators=[DataRequired()])
+   slug = StringField('Slug', validators=[DataRequired()])
+   text = TextAreaField('Text', validators=[DataRequired()])
+   submit = SubmitField('Submit')
+
+
+class LoginForm(FlaskForm):
+   email = StringField('Email', validators=[DataRequired()])
+   password = PasswordField('Password', validators=[DataRequired()])
+   remember_me = BooleanField('Remember Me')
+   submit = SubmitField('Sign In')
+
+
+class RegistrationForm(FlaskForm):
+   username = StringField('Username', validators=[DataRequired()])
+   email = StringField('Email', validators=[DataRequired(), Email()])
+   first = StringField('First Name', validators=[DataRequired()])
+   last = StringField('Last Name', validators=[DataRequired()])
+   password = PasswordField('Password', validators=[DataRequired()])
+   password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+   submit = SubmitField('Register!')
+
+   def validate_username(self, username):
+      user = User.query.filter_by(username=username.data).first()
+      if user is not None:
+         raise ValidationError('User already exists.')
+
+   def validate_email(self, email):
+      user = User.query.filter_by(email=email.data).first()
+      if user is not None:
+         raise ValidationError('User already exists.')
+
+</code></pre>
+
+<ol>
+<li>
+<p><strong>Import statements:</strong> We've added a bunch of other fields and validators to our forms script. We'll be using these for the Login and Registration forms. We're also importing the User from our models.</p>
+</li>
+<li>
+<p>The login form is straightforward. It has fields for email, password, a checkbox for remember_me, and a submit field. This is all pretty straightforward and the route checks that the user existss.</p>
+</li>
+<li>
+<p>Our registration form has a couple of methods. By following the pattern <code>validate_&lt;something&gt;</code> the methods are called automatically by <code>validate_on_submit()</code> in the route. In this case, we're checking that the user has not already registered with this username or email.</p>
+</li>
+</ol>
+<p>You'll also notice that we added an email validator. To make this work we need to install it with pip and make sure you've frozen the changes to requirements.txt:</p>
+<pre><code>(env) ~/Projects/blog$ pip install email-validator
+</code></pre>
+
+<p>Now we need to make some changes to our templates:</p>
+<p><em>base.html</em></p>
+<pre><code class="html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+   &lt;meta charset=&quot;UTF-8&quot;&gt;
+   &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+   &lt;title&gt;{{ title }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+   &lt;ul&gt;
+      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/li&gt;
+      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/cv&quot;&gt;CV&lt;/a&gt;&lt;/li&gt;
+      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;{{ url_for('blog') }}&quot;&gt;Blog&lt;/a&gt;&lt;/li&gt;
+      {% if current_user.is_anonymous %}
+      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;{{ url_for('login') }}&quot;&gt;Login&lt;/a&gt;&lt;/li&gt;
+      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;{{ url_for('register') }}&quot;&gt;Register&lt;/a&gt;&lt;/li&gt;
+      {% else %}
+      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;{{ url_for('logout') }}&quot;&gt;Logout&lt;/a&gt;&lt;/li&gt;
+      {% endif %}
+   &lt;/ul&gt;
+   &lt;hr&gt;
+   {% with messages = get_flashed_messages() %}
+   {% if messages %}
+   &lt;ul&gt;
+      {% for message in messages %}
+      &lt;li&gt;{{ message }}&lt;/li&gt;
+      {% endfor %}
+   &lt;/ul&gt;
+   {% endif %}
+   {% endwith %}
+   {% block content %} {% endblock %}
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<ol>
+<li>
+<p>First, I decided to not use a loop for my menu. This is unlikely to change, and I don't want to have to pass the data on every view. </p>
+</li>
+<li>
+<p>I have menu links to login or register if the user is not logged in already or <code>is_anonymous</code></p>
+</li>
+<li>
+<p>I added a section to display flashed messages, which we have now. This is where all of our login error or success messages will appear.</p>
+</li>
+</ol>
+<p>Next I want to create my registration and login templates. The first is easiest:</p>
+<p><em>login.html</em></p>
+<pre><code class="html">{% extends 'base.html' %}
+
+{% block content %}
+&lt;h1&gt;Sign In&lt;/h1&gt;
+&lt;form action=&quot;&quot; method=&quot;post&quot;&gt;
+   {{ form.hidden_tag() }}
+   &lt;p&gt;
+      {{ form.email.label }} &lt;br&gt;
+      {{ form.email(size=32) }} &lt;br&gt;
+      {% for error in form.email.errors %}
+      &lt;span style=&quot;color: red;&quot;&gt;[{{ error }}]&lt;/span&gt;
+      {% endfor %}
+   &lt;/p&gt;
+   &lt;p&gt;
+      {{ form.password.label }} &lt;br&gt;
+      {{ form.password(size=32) }} &lt;br&gt;
+      {% for error in form.password.errors %}
+      &lt;span style=&quot;color: red;&quot;&gt;[{{ error }}]&lt;/span&gt;
+      {% endfor %}
+   &lt;/p&gt;
+   &lt;p&gt;{{ form.remember_me() }} {{ form.remember_me.label }}&lt;/p&gt;
+   &lt;p&gt;{{ form.submit() }}&lt;/p&gt;
+   &lt;p&gt;New User? &lt;a href=&quot;{{ url_for('register') }}&quot;&gt;Click to Register!&lt;/a&gt;&lt;/p&gt;
+
+&lt;/form&gt;
+{% endblock %}
+</code></pre>
+
+<p>You'll notice that we have a space where our validation errors will pop up if there are errors. Also, we continue to use a hidden tag on all of our forms. Now we need a registration form:</p>
+<p><em>register.html</em></p>
+<pre><code class="html">{% extends 'base.html' %}
+
+{% block content %}
+&lt;h1&gt;Sign In&lt;/h1&gt;
+&lt;form action=&quot;&quot; method=&quot;post&quot;&gt;
+   {{ form.hidden_tag() }}
+   &lt;p&gt;
+      {{ form.username.label }} &lt;br&gt;
+      {{ form.username(size=32) }} &lt;br&gt;
+      {% for error in form.username.errors %}
+      &lt;span style=&quot;color: red;&quot;&gt;[{{ error }}]&lt;/span&gt;
+      {% endfor %}
+   &lt;/p&gt;
+   &lt;p&gt;
+      {{ form.email.label }} &lt;br&gt;
+      {{ form.email(size=32) }} &lt;br&gt;
+      {% for error in form.email.errors %}
+      &lt;span style=&quot;color: red;&quot;&gt;[{{ error }}]&lt;/span&gt;
+      {% endfor %}
+   &lt;/p&gt;
+   &lt;p&gt;
+      {{ form.first.label }} &lt;br&gt;
+      {{ form.first(size=32) }} &lt;br&gt;
+   &lt;/p&gt;
+   &lt;p&gt;
+      {{ form.last.label }} &lt;br&gt;
+      {{ form.last(size=32) }} &lt;br&gt;
+   &lt;/p&gt;
+   &lt;p&gt;
+      {{ form.password.label }} &lt;br&gt;
+      {{ form.password(size=32) }} &lt;br&gt;
+      {% for error in form.password.errors %}
+      &lt;span style=&quot;color: red;&quot;&gt;[{{ error }}]&lt;/span&gt;
+      {% endfor %}
+   &lt;/p&gt;
+   &lt;p&gt;
+      {{ form.password2.label }} &lt;br&gt;
+      {{ form.password2(size=32) }} &lt;br&gt;
+      {% for error in form.password2.errors %}
+      &lt;span style=&quot;color: red;&quot;&gt;[{{ error }}]&lt;/span&gt;
+      {% endfor %}
+   &lt;/p&gt;
+   &lt;p&gt;{{ form.submit() }}&lt;/p&gt;
+&lt;/form&gt;
+{% endblock %}
+</code></pre>
+
+<p>This is the same idea, it just has a lot more fields. You'll also notice that we don't need a template for the logout route because that redirects the user directly to the index view. Speaking of which, I want to adjust the functionality of that somewhat. Instead of receiving the user's name through a url parameter, I want to get it from the logged in user's name. First I want to change my test a bit:</p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">def test_heading_name(self):
+   self.login('author@example.com', 'password')
+   resp = self.client.get('/')
+   html = resp.data.decode('utf-8')
+   soup = BeautifulSoup(html, 'html.parser')
+   head = soup.h1.get_text()
+   self.assertEqual('Hello Author', head)
+</code></pre>
+
+<p>Then a small change to the index route in routes.py and index.html:</p>
+<p><em>routes.py</em></p>
+<pre><code class="python">from flask import render_template, request, redirect, flash, url_for
+from flask_login import current_user, login_user, logout_user
+from app import app, db
+from app.forms import NewEntryForm, LoginForm, RegistrationForm
+from app.models import User
+
+@app.route('/')
+def index():
+   title = 'Fancy-Pants Blog'
+   return render_template('index.html', title=title)
+...
+</code></pre>
+
+<p><em>index.html</em></p>
+<pre><code class="html">{% extends 'base.html' %}
+{% block content %}
+{% if current_user.is_authenticated %}
+&lt;h1&gt;Hello {{ current_user.first_name }}&lt;/h1&gt;
+{% else %}
+&lt;h1&gt;Hello Stranger&lt;/h1&gt;
+{% endif %}
+{% endblock %}
+</code></pre>
+
+<p>At this point, all of our tests pass except for those related to the blog. This is great! In the next Chapter, we'll get the blog set up and finish making all of our tests pass. </p>
+<pre><code>(env) ~/Projects/blog$ python -m unittest tests/blog_tests.py
+FF...FFF...........
+======================================================================
+FAIL: test_blog_logged_in (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;~/Projects/blog/tests/blog_tests.py&quot;, line 181, in test_blog_logged_in
+    self.assertIn(b'Test Post', resp.data)
+AssertionError: b'Test Post' not found in b'&lt;!DOCTYPE html&gt;\n&lt;html lang=&quot;en&quot;&gt;\n&lt;head&gt;\n   &lt;meta charset=&quot;UTF-8&quot;&gt;\n   &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;\n   &lt;title&gt;&lt;/title&gt;\n&lt;/head&gt;\n&lt;body&gt;\n   &lt;ul&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/li&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/cv&quot;&gt;CV&lt;/a&gt;&lt;/li&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/blog&quot;&gt;Blog&lt;/a&gt;&lt;/li&gt;\n      \n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/logout&quot;&gt;Logout&lt;/a&gt;&lt;/li&gt;\n      \n   &lt;/ul&gt;\n   &lt;hr&gt;\n   \n   \n   \n   \n\n&lt;form method=&quot;POST&quot;&gt;\n   \n   &lt;label for=&quot;post_title&quot;&gt;Title&lt;/label&gt; &lt;input id=&quot;post_title&quot; name=&quot;post_title&quot; required type=&quot;text&quot; value=&quot;&quot;&gt;\n   &lt;label for=&quot;author&quot;&gt;Author&lt;/label&gt; &lt;input id=&quot;author&quot; name=&quot;author&quot; required type=&quot;text&quot; value=&quot;&quot;&gt;\n   &lt;label for=&quot;text&quot;&gt;Text&lt;/label&gt; &lt;textarea id=&quot;text&quot; name=&quot;text&quot; required&gt;\r\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. &lt;/textarea&gt;\n   &lt;label for=&quot;submit&quot;&gt;Submit&lt;/label&gt; &lt;input id=&quot;submit&quot; name=&quot;submit&quot; type=&quot;submit&quot; value=&quot;Submit&quot;&gt;\n&lt;/form&gt;\n\n&lt;/body&gt;\n&lt;/html&gt;'
+
+======================================================================
+FAIL: test_blog_not_logged_in (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;~/Projects/blog/tests/blog_tests.py&quot;, line 171, in test_blog_not_logged_in
+    self.assertIn(b'You must be logged in.', resp.data)
+AssertionError: b'You must be logged in.' not found in b'&lt;!DOCTYPE html&gt;\n&lt;html lang=&quot;en&quot;&gt;\n&lt;head&gt;\n   &lt;meta charset=&quot;UTF-8&quot;&gt;\n   &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;\n   &lt;title&gt;&lt;/title&gt;\n&lt;/head&gt;\n&lt;body&gt;\n   &lt;ul&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/li&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/cv&quot;&gt;CV&lt;/a&gt;&lt;/li&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/blog&quot;&gt;Blog&lt;/a&gt;&lt;/li&gt;\n      \n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/login&quot;&gt;Login&lt;/a&gt;&lt;/li&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/register&quot;&gt;Register&lt;/a&gt;&lt;/li&gt;\n      \n   &lt;/ul&gt;\n   &lt;hr&gt;\n   \n   \n   \n   \n\n&lt;form method=&quot;POST&quot;&gt;\n   \n   &lt;label for=&quot;post_title&quot;&gt;Title&lt;/label&gt; &lt;input id=&quot;post_title&quot; name=&quot;post_title&quot; required type=&quot;text&quot; value=&quot;&quot;&gt;\n   &lt;label for=&quot;author&quot;&gt;Author&lt;/label&gt; &lt;input id=&quot;author&quot; name=&quot;author&quot; required type=&quot;text&quot; value=&quot;&quot;&gt;\n   &lt;label for=&quot;text&quot;&gt;Text&lt;/label&gt; &lt;textarea id=&quot;text&quot; name=&quot;text&quot; required&gt;\r\nbad&lt;/textarea&gt;\n   &lt;label for=&quot;submit&quot;&gt;Submit&lt;/label&gt; &lt;input id=&quot;submit&quot; name=&quot;submit&quot; type=&quot;submit&quot; value=&quot;Submit&quot;&gt;\n&lt;/form&gt;\n\n&lt;/body&gt;\n&lt;/html&gt;'
+
+======================================================================
+FAIL: test_form_fields (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;~/Projects/blog/tests/blog_tests.py&quot;, line 228, in test_form_fields
+    self.assertListEqual(fields[1:], ['post_title', 'slug', 'submit'])
+AssertionError: Lists differ: ['author', 'submit'] != ['post_title', 'slug', 'submit']
+
+First differing element 0:
+'author'
+'post_title'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'submit'
+
+- ['author', 'submit']
++ ['post_title', 'slug', 'submit']
+
+======================================================================
+FAIL: test_get_all_posts (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;~/Projects/blog/tests/blog_tests.py&quot;, line 205, in test_get_all_posts
+    self.assertIn(b'Test Post2', resp.data)
+AssertionError: b'Test Post2' not found in b'&lt;!DOCTYPE html&gt;\n&lt;html lang=&quot;en&quot;&gt;\n&lt;head&gt;\n   &lt;meta charset=&quot;UTF-8&quot;&gt;\n   &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;\n   &lt;title&gt;Fancy-Pants Blog&lt;/title&gt;\n&lt;/head&gt;\n&lt;body&gt;\n   &lt;ul&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/li&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/cv&quot;&gt;CV&lt;/a&gt;&lt;/li&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/blog&quot;&gt;Blog&lt;/a&gt;&lt;/li&gt;\n      \n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/login&quot;&gt;Login&lt;/a&gt;&lt;/li&gt;\n      &lt;li class=&quot;menu-item&quot;&gt;&lt;a href=&quot;/register&quot;&gt;Register&lt;/a&gt;&lt;/li&gt;\n      \n   &lt;/ul&gt;\n   &lt;hr&gt;\n   \n   \n   \n   \n&lt;h1&gt;Blog Posts&lt;/h1&gt;\n\n&lt;div class=&quot;blog-post&quot;&gt;\n   &lt;h2&gt;Post One&lt;/h2&gt;&lt;br&gt;\n   &lt;h3&gt;Jimmy&lt;/h3&gt;\n   &lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolor doloremque totam adipisci ex dolores vitae enim soluta quo provident! Voluptatem tenetur harum magni pariatur. Aliquid laborum dolores harum dignissimos quibusdam!&lt;/p&gt;\n&lt;/div&gt;\n\n&lt;div class=&quot;blog-post&quot;&gt;\n   &lt;h2&gt;About Chickens&lt;/h2&gt;&lt;br&gt;\n   &lt;h3&gt;Jimmy&lt;/h3&gt;\n   &lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolor doloremque totam adipisci ex dolores vitae enim soluta quo provident! Voluptatem tenetur harum magni pariatur. Aliquid laborum dolores harum dignissimos quibusdam!&lt;/p&gt;\n&lt;/div&gt;\n\n&lt;div class=&quot;blog-post&quot;&gt;\n   &lt;h2&gt;Trampled by Turtles&lt;/h2&gt;&lt;br&gt;\n   &lt;h3&gt;Jimmy&lt;/h3&gt;\n   &lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolor doloremque totam adipisci ex dolores vitae enim soluta quo provident! Voluptatem tenetur harum magni pariatur. Aliquid laborum dolores harum dignissimos quibusdam!&lt;/p&gt;\n&lt;/div&gt;\n\n\n\n&lt;/body&gt;\n&lt;/html&gt;'
+
+======================================================================
+FAIL: test_get_one_post (tests.blog_tests.TestBlog)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;~/Projects/blog/tests/blog_tests.py&quot;, line 211, in test_get_one_post
+    self.assertIn(b'Title', resp.data)
+AssertionError: b'Title' not found in b'&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;\n&lt;title&gt;404 Not Found&lt;/title&gt;\n&lt;h1&gt;Not Found&lt;/h1&gt;\n&lt;p&gt;The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.&lt;/p&gt;\n'
+
+----------------------------------------------------------------------
+Ran 19 tests in 9.790s
+
+FAILED (failures=5)
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

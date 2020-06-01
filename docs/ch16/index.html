@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>16. Finishing the Blog - Test-Driven Development with Flask</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Test-Driven Development with Flask</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">One <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch1/" class="dropdown-item">1. Intro to TDD</a>
+</li>
+                                    
+<li>
+    <a href="../ch2/" class="dropdown-item">2. Types of Tests</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Two <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch3/" class="dropdown-item">3. Intro to Objects</a>
+</li>
+                                    
+<li>
+    <a href="../ch4/" class="dropdown-item">4. TDD with Objects</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Three <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch5/" class="dropdown-item">5. The Internet</a>
+</li>
+                                    
+<li>
+    <a href="../ch6/" class="dropdown-item">6. TDD Online</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Four <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch7/" class="dropdown-item">7. Intro to Flask</a>
+</li>
+                                    
+<li>
+    <a href="../ch8/" class="dropdown-item">8. Smallest App</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Five <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch9/" class="dropdown-item">9. Intro to HTML</a>
+</li>
+                                    
+<li>
+    <a href="../ch10/" class="dropdown-item">10. Intro to Templates</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Six <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch11/" class="dropdown-item">11. Decorators</a>
+</li>
+                                    
+<li>
+    <a href="../ch12/" class="dropdown-item">12. Templates the TDD Way</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Seven <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../ch13/" class="dropdown-item">13. Forms the TDD way</a>
+</li>
+                                    
+<li>
+    <a href="../ch14/" class="dropdown-item">14. Databases and Login</a>
+</li>
+                                    
+<li>
+    <a href="../ch15/" class="dropdown-item">15. Building our Blog</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active">16. Finishing the Blog</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../ch15/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#finishing-our-blog" class="nav-link">Finishing our Blog</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#conclusion" class="nav-link">Conclusion</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="finishing-our-blog">Finishing our Blog</h1>
+<p>In Chapter 14, I set up a bunch of tests for my identity management system, and for my blog. In Chapter 15, I got the identity management system working, and now I'm ready to get the blog working with the database. I went in this order because I want to control who can post to the blog. Basically, if a user can register, they'll be able to post. Let's take a look at those tests again:</p>
+<p><em>blog_tests.py</em></p>
+<pre><code class="python">...
+
+   ##########################
+   ####    Blog Tests    ####
+   ##########################
+
+   def test_blog_not_logged_in(self):
+      resp = self.client.post('/post', data=dict(title=&quot;bad&quot;, slug=&quot;bad&quot;, text=&quot;bad&quot;), follow_redirects=True)
+      self.assertIn(b'You must be logged in', resp.data)
+
+   def test_blog_logged_in(self):
+      self.login('author@example.com', 'password')
+      data = {
+         'post_title': 'Test Post',
+         'slug': 'Short summary of the post.',
+         'text': '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum enim id enim tempor, ullamcorper tempor quam tincidunt. Proin eget dapibus arcu. Donec ornare feugiat elit, eu efficitur nisi dictum in. Donec libero nisl, pretium eget placerat nec, tincidunt varius orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc consequat leo enim, ut maximus neque pellentesque ac. Quisque porta, justo in maximus tincidunt, eros arcu tempus elit, a tristique turpis quam vel lacus. Nulla eleifend felis venenatis nunc ullamcorper cursus. Duis scelerisque consectetur odio, quis aliquet ipsum dictum vel. In dapibus, nisl ut feugiat vehicula, diam justo gravida lorem, id gravida nulla est id est. Donec ut nulla eu urna auctor gravida at eu purus. Etiam nulla dolor, tincidunt a nisl in, porta efficitur felis. Donec pretium lobortis facilisis. '''
+      }
+      resp = self.client.post('/post', data=data, follow_redirects=True)
+      self.assertIn(b'Test Post', resp.data)
+
+   def test_get_all_posts(self):
+      self.login('author@example.com', 'Password')
+      resp = self.client.get('/blog')
+      self.assertIn(b'Title', resp.data)
+      self.assertIn(b'Title2', resp.data)
+
+   def test_get_one_post(self):
+      resp = self.client.get('/blog/1')
+      self.assertIn(b'Title', resp.data)
+      self.assertNotIn(b'Title2', resp.data)
+
+...
+</code></pre>
+
+<ol>
+<li>
+<p><code>test_blog_not_logged_in</code> This method tries to make a post without logging in first. This will fail. The parameter <code>follow_redirects</code> tells the post method to follow any redirects that might be sent back from the test_client. If we were looking at this manually, the app would redirect us to the index page flashing the message "You must be logged in".</p>
+</li>
+<li>
+<p><code>test_blog_logged_in</code> This method logs in first and tries to make a post. The app redirects us to the blog page after a successful post, so the test makes sure that post I added is actually on the page. </p>
+</li>
+<li>
+<p><code>test_get_all_posts</code> and <code>test_get_one_post</code> tell us that we must two routes for blog. One that gets all the posts and one that gets a single post by id. I'm testing the posts that I added to the database on setup.</p>
+</li>
+</ol>
+<p>Okay, so now I need to modify my Blog form a little bit. Instead of having an author field, I want to get the author from the authentication data. Then, I want to add a slug or tag line field. </p>
+<p><em>forms.py</em></p>
+<pre><code class="python">from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from app.models import User
+
+class NewEntryForm(FlaskForm):
+   post_title = StringField('Title', validators=[DataRequired()])
+   slug = StringField('Tagline', validators=[DataRequired()])
+   text = TextAreaField('Text', validators=[DataRequired()])
+   submit = SubmitField('Submit')
+
+
+class LoginForm(FlaskForm):
+   email = StringField('Email', validators=[DataRequired()])
+   password = PasswordField('Password', validators=[DataRequired()])
+   remember_me = BooleanField('Remember Me')
+   submit = SubmitField('Sign In')
+
+
+class RegistrationForm(FlaskForm):
+   username = StringField('Username', validators=[DataRequired()])
+   email = StringField('Email', validators=[DataRequired(), Email()])
+   first = StringField('First Name', validators=[DataRequired()])
+   last = StringField('Last Name', validators=[DataRequired()])
+   password = PasswordField('Password', validators=[DataRequired()])
+   password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+   submit = SubmitField('Register!')
+
+   def validate_username(self, username):
+      user = User.query.filter_by(username=username.data).first()
+      if user is not None:
+         raise ValidationError('User already exists.')
+
+   def validate_email(self, email):
+      user = User.query.filter_by(email=email.data).first()
+      if user is not None:
+         raise ValidationError('User already exists.')
+</code></pre>
+
+<p>At this point you should feel more comfortable reading the code, so I'm intentionally not going to give you a lot of detailed explanation on the forms. Pay attention to the changes I mentioned above.</p>
+<p>Next, we need to check that our Model still looks good, which it does:</p>
+<p><em>models.py</em></p>
+<pre><code class="python">from . import db 
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timezone
+from app import login
+
+class User(UserMixin, db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   username = db.Column(db.String(40), index=True, unique=True, nullable=False)
+   email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+   first_name = db.Column(db.String(120), nullable=False)
+   last_name = db.Column(db.String(120), nullable=False)
+   password = db.Column(db.String(200))
+   joined = db.Column(db.DateTime, index=True, default=datetime.now(timezone.utc))
+   posts = db.relationship('Post', backref='author_posts', lazy='dynamic')
+
+   def hash_password(self, password):
+      self.password = generate_password_hash(password, method='sha256')
+
+   def check_password(self, password):
+      return check_password_hash(self.password, password)
+
+   def __repr__(self):
+      return '&lt;User {}&gt;'.format(self.username)
+
+
+class Post(db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   title = db.Column(db.String(120), nullable=False)
+   slug = db.Column(db.String(140), nullable=False)
+   body = db.Column(db.Text(), nullable=False)
+   created = db.Column(db.DateTime, index=True, default=datetime.now(timezone.utc))
+   author = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+   def __repr__(self):
+      return '&lt;Post&gt; {}'.format(self.slug)
+
+
+@login.user_loader
+def load_user(id):
+   return User.query.get(int(id))
+
+</code></pre>
+
+<p>Really the only complicated thing we need to do is modify our routes now. That means removing the data structures that we hardcoded, controlling access, and getting our tests to pass. My first step will be to get data from the database and display one or many posts.</p>
+<p><em>routes.py</em></p>
+<pre><code class="python">@app.route('/blog')
+@app.route('/blog/&lt;id&gt;')
+def blog(id=None):
+   title = 'Fancy-Pants Blog'
+   if id is None:
+      data = Post.query.order_by(created)
+   else:
+      data = Post.query.filter_by(id=id).first_or_404()
+
+   return render_template('blog.html', title=title, data=data)
+</code></pre>
+
+<p>I added another route to this method so that it responds either to retrieve all of the posts or just one depending on whether more than one are requested. Then, instead of having my data hardcoded in my route, I query or retrieve data from the database. Now I need to make a change to my template. </p>
+<p><em>blog.html</em></p>
+<pre><code class="html">{% extends 'base.html' %}
+{% block content %}
+&lt;h1&gt;Blog Posts&lt;/h1&gt;
+{% for post in data %}
+&lt;div class=&quot;blog-post&quot;&gt;
+   &lt;h2&gt;{{ post.title }}&lt;/h2&gt;&lt;br&gt;
+   &lt;h3&gt;{{ post.slug }}&lt;/h3&gt;
+   &lt;h3&gt;{{ post.author.first_name }} {{ post.author.last_name }}&lt;/h3&gt;
+   &lt;p&gt;{{ post.text }}&lt;/p&gt;
+   &lt;p&gt;{{ post.created }}&lt;/p&gt;
+&lt;/div&gt;
+{% endfor %}
+
+{% endblock %}
+</code></pre>
+
+<p>You'll notice that I'm still iterating through the data object because the query will return a list of posts. Also, since I created a relationship between Post and User, I can access the user associated with each post directly. This one view will show a single post or mutliple posts depending on how many items are in the data object. This means I don't need a separate view template for the individual or list view. I might change this later. Perhaps if I'm listing all posts, I just want to show the title, author, and tagline, but these are all design decisions. I'm going to have a problem here, though. When I display the data in a template, the template is going to look for an iterable list. If we think about the data when we get one post the code looks like this: <code>data = Post.query.filter_by(id=id).first_or_404()</code> This means get all the posts that have this particular id. If there are more than one post with that id (there won't be) we take the first. If there are no posts with that id, the user is routed to the page not found view (404). If the call is successful, then data will be a single object as opposed to a list of objects. There are two solutions: check if data is a list in the template and only iterate if it is, or force the single post into a list. Neither solution is brilliant, but the least amount of code is to just change my route slightly:</p>
+<p><em>routes.py</em></p>
+<pre><code class="python">...
+
+@app.route('/blog')
+@app.route('/blog/&lt;id&gt;')
+def blog(id=None):
+   title = 'Fancy-Pants Blog'
+   if id is None:
+      data = Post.query.order_by('created')
+   else:
+      data = [Post.query.filter_by(id=id).first_or_404()]
+
+   return render_template('blog.html', title=title, data=data)
+
+...
+</code></pre>
+
+<p>Now <code>data</code> is only ever a list. If there is only one post, then it is a list with a single object in it.</p>
+<p>All that's left is for me to get the route setup for the user to enter a post. This is very much like the registration route. Instead of creating a user object and inserting it into the database, I create a post object and insert it into the database.</p>
+<p><em>routes.py</em></p>
+<pre><code class="python">@app.route('/post', methods=['GET', 'POST'])
+@login_required
+def new_post():
+
+   form = NewEntryForm()
+   if form.validate_on_submit():
+      p = Post(
+         title = form.post_title.data,
+         slug = form.slug.data,
+         body = form.text.data,
+         author = current_user.id
+      )
+      db.session.add(p)
+      db.session.commit()
+      flash('Post Created!')
+      return redirect(url_for('blog'))
+   return render_template('post.html', form=form)
+</code></pre>
+
+<ol>
+<li>
+<p><code>p = Post(...)</code> Again, I create an instance of the Post class. Then I populate it with data.</p>
+</li>
+<li>
+<p><code>author = current_user.id</code> This is important. Remember how I said I'd be getting the author automatically? This is how I do it. The current user is set by flask-login. I know this will be set because the route is decorated with <code>@login_required</code> which means the user must login to even visit this route. All I need to do is get the id from the current_user object. If you're interested, flask-login stores the current_user in the session data, meaning it is retained until the user shuts down their browser, clears their session manually, follows the logout route in the app, or the session expires. </p>
+</li>
+<li>
+<p>Finally, we add the post and commit the changes to the database. </p>
+</li>
+</ol>
+<p>Since we have a lot of files by now, here's a link to a github repository that has all of the code we've written: <a href="https://github.com/dlondonmedina/blog">Blog</a> The config file is not included because it's generally better not to include that publicly because it has secret keys in it and the like. Here is the sample I've been working through here:</p>
+<p><em>config.py</em></p>
+<pre><code class="python">import os 
+
+class Config:
+   BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+   SECRET_KEY = os.environ.get('SECRET_KEY') or 'us@randomStrin1her0'
+   SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+      'sqlite:///' + os.path.join(BASE_DIR, 'app.db')
+   SQLALCHEMY_TRACK_MODIFICATIONS = False 
+
+</code></pre>
+
+<p>If we run our tests, they will all pass now!</p>
+<pre><code>(env) ~/Projects/blog$ python -m unittest tests/blog_tests.py
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 9.409s
+
+OK
+
+</code></pre>
+
+<p>There's one last thing that we need to do however, if we want to be able to use the app. We need to setup our database. If you recall, we added flask-migrate and the Migrate() method in our __init__.py script. This allows us to create our databases and tables through our terminal. </p>
+<pre><code>(env) ~/Projects/blog$ pip install flask-migrate
+# ...
+(env) ~/Projects/blog$ pip freeze &gt; requirements.txt
+(env) ~/Projects/blog$ flask db init
+  Creating directory /home/user1/Projects/blog/migrations ...  done
+  Creating directory /home/user1/Projects/blog/migrations/versions ...  done
+  Generating /home/user1/Projects/blog/migrations/env.py ...  done
+  Generating /home/user1/Projects/blog/migrations/README ...  done
+  Generating /home/user1/Projects/blog/migrations/script.py.mako ...  done
+  Generating /home/user1/Projects/blog/migrations/alembic.ini ...  done
+  Please edit configuration/connection/logging settings in
+  '/home/user1/Projects/blog/migrations/alembic.ini' before proceeding.
+(env) ~/Projects/blog$ flask db migrate -m &quot;users and posts tables&quot;
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.autogenerate.compare] Detected added table 'user'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_email' on '['email']'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_joined' on '['joined']'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_username' on '['username']'
+INFO  [alembic.autogenerate.compare] Detected added table 'post'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_post_created' on '['created']'
+  Generating /home/user1/Projects/blog/migrations/versions/884a4d6643fb_users_and_
+  posts_table.py ...  done
+(env) ~/Projects/blog$ flask db upgrade
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -&gt; 884a4d6643fb, users and posts table
+</code></pre>
+
+<ol>
+<li>
+<p><code>pip install flask-migrate</code> installs flask migrate. Then I update my requirements file. </p>
+</li>
+<li>
+<p><code>flask db init</code> This initializes the database. It does not create tables, but prepares the database for tables.</p>
+</li>
+<li>
+<p><code>flask db migrate -m "users and posts tables"</code> This reads from models.py and executes the appropriate SQL commands to create tables that match the models we created. Notice, flask-migrate does database version control, so the <code>-m "users and posts tables</code> is a message that gets stored with this version of the database. The message is arbitrary, but should be short and descriptive.</p>
+</li>
+<li>
+<p><code>flask db upgrade</code> This finally saves the changes that we made in the migration to the database. Think of "migrate" as staging changes and "upgrade" as making those changes permanent, just like git add and git commit. </p>
+</li>
+</ol>
+<p>If you run these commands a few things to note: a directory called "migrations/" will be created. This is where flask-migrate stores the version control information. Also a file called app.db will be created. This is your database since we are using SQLite. I would recommend adding "migrations/" and "*.db" and "config.py" to your .gitignore file. </p>
+<h2 id="conclusion">Conclusion</h2>
+<p>At this point you should have a fully functional blog. It will be ugly, not have a lot of features, but it is the basics. There are many steps you can take from here. I recommend taking a look at Miguel Grinberg's Course and Book <a href="https://courses.miguelgrinberg.com/">Flask Web Development</a>. He does not take a TDD approach, but he does give you a much more thorough walkthrough of Flask and everything that it can do. </p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
